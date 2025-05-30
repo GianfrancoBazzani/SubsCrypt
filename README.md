@@ -38,8 +38,6 @@ The service provider is free to trigger a bridge and/or swap atomically when pul
 8. The "payment" EOA is funded with funds using privacy preserving protocols.
 9. Now the service provider can pull periodically funds from the EOA according to the time that he has been serving the service.
 
-
-
 ![System Schema](img/system-schema.png)
 
 
@@ -47,6 +45,14 @@ The service provider is free to trigger a bridge and/or swap atomically when pul
 - [Vlayer how it works](https://book.vlayer.xyz/getting-started/how-it-works.html)
 - [Vlayer contract execution](https://book.vlayer.xyz/getting-started/how-it-works.html#vlayer-contract-execution)
 
+Prover inputs:
+- Email
+
+Prover outputs:
+- Hash of the email to initialize the account
+
+Email format:
+-  \_\_AUTHORIZATION\_\_\<Authorization Tuple\>\_\_AUTHORIZATION\_\_
 
 ### MPC (For the future private family subscriptions)
 - [cb-mpc](https://github.com/coinbase/cb-mpc)
@@ -56,3 +62,7 @@ The service provider is free to trigger a bridge and/or swap atomically when pul
 ### EIP-7702 
 authorization tuple: `[chain_id, address, nonce, y_parity, r, s]`
 
+contract features: TODO
+
+Withdraw funds using user email (Subscription will stop)
+pull payment.
