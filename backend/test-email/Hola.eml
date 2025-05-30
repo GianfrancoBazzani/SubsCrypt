@@ -1,0 +1,93 @@
+Delivered-To: bazzanigianfranco@gmail.com
+Received: by 2002:a05:6e04:3812:b0:35a:dd15:2c10 with SMTP id cb18csp1480128imd;
+        Fri, 30 May 2025 12:47:52 -0700 (PDT)
+X-Received: by 2002:a05:6512:1284:b0:553:2f49:ff2a with SMTP id 2adb3069b0e04-5533b92e3c3mr1687131e87.38.1748634472717;
+        Fri, 30 May 2025 12:47:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1748634472; cv=none;
+        d=google.com; s=arc-20240605;
+        b=YcRPzGDBwOdaARQsi6SCf+9TB0GKcSVIX00QgQpqZbVY7/XMQiZ9yPoNNcftAcKKGH
+         CnG7l4f1S9cGgvFvYjeQKgx16iANJvIP4BVXsNf9cgWbUK9xYvOSSTQZNbk3hKU8/55J
+         tuxNNplrs3Rsptk1BGN8TEcDQFd641g4MofVoznnm5uKqCc2gkdiSAdv0e2jYVtPah4d
+         +9gJ8Jvru0e/ypzm+knlB/zKOpdvXs6qtj07Z3/b5T8kHvB+mQUGoyHN3bLbggeeWY+5
+         sl8rWbKSvrXQLMQMtKP1ThBMQiw+mCJcxuphmo4fy0rXe0nOIymcvl601K9urQG/ShNR
+         L6iA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=MsR4nPoMKAOztMne4MyA2matqyrWaC1qP+5DyPM90gU=;
+        fh=oQbab5c6/RW1iNI3LIXcK8QdtL2heT/N4Ls99rXbn6c=;
+        b=Ud/5sGEnCy5rsragFYodgEZQI4lT2ONxehu49dgUEk5ZOyfBFMrM5AtT04oKLRs/0A
+         Y5N1ta5pIiHNiZ0gL3PpIYpNEl7nZIBIn9ZmyUtSWm4s2WqcT/kvDlyPxl7Sl/OmuwOr
+         jQHPucPfsLL6fZfFua46X5s97EGcG8vgTpsohCUFOWfoyd+Nb0aoQH0wyseCv9biRTP/
+         fCPOW788bGyCYmXd8glJBcM6zxFpygA5sYYc9WC+4/QzNuI/2rr44BgMBM7Szpfx2AVl
+         Qo58jigxJ8MuEM+L5c7PFVi+phJBpEjDjKD9KlS8emhVTan7frIWBSt38KT0QLkcVJYA
+         Jz1A==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=IGNoac8m;
+       spf=pass (google.com: domain of ferrabled@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=ferrabled@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@gmail.com
+Return-Path: <ferrabled@gmail.com>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])
+        by mx.google.com with SMTPS id 2adb3069b0e04-5533820a7c8sor806627e87.13.2025.05.30.12.47.52
+        for <bazzanigianfranco@gmail.com>
+        (Google Transport Security);
+        Fri, 30 May 2025 12:47:52 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ferrabled@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=IGNoac8m;
+       spf=pass (google.com: domain of ferrabled@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=ferrabled@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@gmail.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748634472; x=1749239272; dara=google.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=MsR4nPoMKAOztMne4MyA2matqyrWaC1qP+5DyPM90gU=;
+        b=IGNoac8mSHCglsimD5gbehr69/+O2tXoYHFNdet1D0BzzAj6VlQf8WyeVs2FYAyJ1F
+         5CxZvV+WCiC4Wv05VKJvAR+yotEvSgPzP+/MRm75wdZb1pivpyA7TwqIqM9APLKldjPy
+         pv6jq4a5csI1LBAGoWaPvYColb1EYn4TMKhpAAHp6OjADgYxWsKiaGlJWCwwdOrw5UZD
+         3Ko6MpQNCadBS5RjRcJsu+fAjcOEWjR2b6zSL9RgdK26KAztlHA8BcSU8xytUmEFQKZB
+         gqfrCOOgmd3Nbffk2e3GjSai/WAfCg93F70476CIkLf2FRq5WBkIAUJn/I3ApSIGoqYR
+         YDrw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748634472; x=1749239272;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=MsR4nPoMKAOztMne4MyA2matqyrWaC1qP+5DyPM90gU=;
+        b=RGFHYX+L4q3VHEwWdG7YrzAyhNBfmbdtpsCmUk97olHFwHZy+i/ps0Kh+Q0nlUaBG+
+         Em2x0wSnsE6OxS8/2xkwwjkb8+yEHdO9f2brOaBX5pkKkGoI3m4CzTeytMV0V2duX5Ph
+         oKs6zUaCdBrk1KC+jt02GBI/dCiU3Sjwa6dPCdOlzU+4npJL+BI6uuUE4L8hyFdpY0Fm
+         vUcro5LZmQG5qreVE8gnSPf7wiTH/kIEEn7KTXKG4y77fvVLCagSeRoZ4J08imUwxWhr
+         TUz1OhsgrC5pvpxAje5h76TAC41AOEFtFNykR0uXYgQKSGr5bgjXJSK/lxjNMfGxgta8
+         qOwg==
+X-Gm-Message-State: AOJu0YxNDDnNlAh7Kqwpa2TQk2d2QjCGFOMgCPo/l8CIl5myg2lAKAgo
+	Lxw7AGJ7TGkYEfsm4cr8ReTqqC7/QHMxVddOFmqO+JFPeO57DqwkJDS98zCuUC0eAWBbWr1nRc0
+	4U7GhvZuh4smJsI4U7RT2ugN7uetK1zMGBS3c38rJ57ay
+X-Gm-Gg: ASbGncuuj7BJ9W8gEK861l6yW27gWDi2OKCCzds2+PtGNt693P7PN39ik21114MDn3b
+	gnH97QMAltybibs/5jlfIt4fjegmQXn188f1xc2dvGbk4aUk4oIEg+SGITqCB9/KoH56uK5pWHF
+	vRZ/VhZVZ3/F8b3TYn2fbGRsUs1TAH3n/0uhQ=
+X-Google-Smtp-Source: AGHT+IGpeWoGFeKHg0a07fWbyFUGAxOiDDlKjtVkCfdaYMGOzZCnzLCGkowbpRtGo9uUfiRCI+cl6G8qMl2MpTQqPnY=
+X-Received: by 2002:a05:6512:15a2:b0:553:36b7:7b14 with SMTP id
+ 2adb3069b0e04-5533b92e465mr1565356e87.37.1748634471692; Fri, 30 May 2025
+ 12:47:51 -0700 (PDT)
+MIME-Version: 1.0
+From: Fernando Rabasco <ferrabled@gmail.com>
+Date: Fri, 30 May 2025 21:47:39 +0200
+X-Gm-Features: AX0GCFuU9wCcGsjs73Zj50S_QUsTUNj6p1E4yWdHgcNM9qKJVc9CFtB0j6kwPIk
+Message-ID: <CAMZcmq+1fCOWTGGa4P3Oj+FxjQ_+vBAbwgDPymLi+L_vE++dTA@mail.gmail.com>
+Subject: Hola
+To: "bazzanigianfranco@gmail.com" <bazzanigianfranco@gmail.com>
+Content-Type: multipart/alternative; boundary="00000000000086fd8d06365fb0b6"
+
+--00000000000086fd8d06365fb0b6
+Content-Type: text/plain; charset="UTF-8"
+
+soy fer
+
+--00000000000086fd8d06365fb0b6
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="ltr">soy fer</div>
+
+--00000000000086fd8d06365fb0b6--
