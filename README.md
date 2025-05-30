@@ -5,4 +5,5 @@ ETH Global Prague 2025 Hackaton Project
 
 
 ### Vlayer Email Proof
-- [vlayer contract execution](https://book.vlayer.xyz/getting-started/how-it-works.html#vlayer-contract-execution)
+- [Vlayer how it works](https://book.vlayer.xyz/getting-started/how-it-works.html)
+- [Vlayer contract execution](https://book.vlayer.xyz/getting-started/how-it-works.html#vlayer-contract-execution)
