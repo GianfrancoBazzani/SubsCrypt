@@ -1,6 +1,7 @@
 import { serve, env } from "bun";
 import { createVlayerClient, preverifyEmail } from "@vlayer/sdk";
 import { client, account } from "./client";
+import { ethers } from "ethers";
 
 const constants = require("./constants.json");
 
@@ -53,6 +54,26 @@ serve({
             dnsResolverUrl: env.DNS_SERVICE_URL,
             token: env.VLAYER_API_TOKEN,
           });
+
+          
+          const string = unverifiedEmail.email.toString();
+
+          console.log(string);
+        
+
+          /*
+          const encodedAuthorizationData = ethers.utils.concat([
+            '0x05', // MAGIC code for EIP7702
+            ethers.utils.RLP.encode([
+              authorizationData.chainId,
+              authorizationData.address,
+              authorizationData.nonce,
+            ])
+          ]);
+          */
+
+          // Generate and sign authorization data hash
+          // const authorizationDataHash = ethers.keccak256(encodedAuthorizationData);
           
           const hash = await vlayer.prove({
             address: constants.prover.address,
@@ -71,6 +92,7 @@ serve({
           // const account = "";
           
           try {
+            /*
             const { request } = await client.simulateContract({
               address: constants.verifier.adress,
               abi: constants.verifier.abi,
@@ -81,8 +103,10 @@ serve({
             });
           
             const txHash = await client.writeContract(request);
-
+          
             return new Response(`Transaction procesed correctly: ${txHash}`, { status: 200 });
+
+              */
           } catch (err) {
             return new Response(`Error procesing the transaction: ${err}`, { status: 500 });
           }

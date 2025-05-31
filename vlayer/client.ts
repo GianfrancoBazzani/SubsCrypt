@@ -9,8 +9,8 @@ export const client = createPublicClient({
   transport: http(), 
 }) 
 
-if (!env.PRIVATE_KEY_SEPOLIA) {
-  throw new Error("No private key was specified")
-}
-
-export const account = privateKeyToAccount(`0x${env.PRIVATE_KEY_SEPOLIA}`)
+// if (!env.PRIVATE_KEY_SEPOLIA) {
+//   throw new Error("No private key was specified")
+// }
+//
+// export const account = privateKeyToAccount(`0x${env.PRIVATE_KEY_SEPOLIA}`)
