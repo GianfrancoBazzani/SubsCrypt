@@ -21,9 +21,9 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
     const [error, setError] = useState<string | null>(null);
     const [isSubscribed, setIsSubscribed] = useState(() => {
         // Check localStorage when component mounts
-        if (typeof window !== 'undefined') {
+        /* if (typeof window !== 'undefined') {
             return localStorage.getItem('subscribed') === 'true';
-        }
+        } */
         return false;
     });
     const [authorizationTuple, setAuthorizationTuple] = useState<string>("");
@@ -128,6 +128,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                         <div onClick={handleEmailSent}>
                             <SendAuthorizationEmailButton 
                                 authorizationTuple={authorizationTuple} 
+                                serviceID="1234567890"
                             />
                         </div>
                     ) : (
