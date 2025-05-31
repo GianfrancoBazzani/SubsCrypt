@@ -3,6 +3,7 @@ import { createVlayerClient, preverifyEmail } from "@vlayer/sdk";
 import { client, account } from "./client";
 import { ethers } from "ethers";
 
+
 const constants = require("./constants.json");
 
 if (!env.DNS_SERVICE_URL) {
@@ -48,18 +49,19 @@ serve({
 
           // Unir todos los fragmentos del archivo en un solo buffer
           const fileBuffer = Buffer.concat(chunks);
-          const email = fileBuffer.toString('utf-8').toString();
+          const email = fileBuffer.toString('utf-8');
+
+          // const email = fs.readFileSync("nuevo.eml").toString();
+
           const unverifiedEmail = await preverifyEmail({
-            email,
+            mimeEmail: email,
             dnsResolverUrl: env.DNS_SERVICE_URL,
             token: env.VLAYER_API_TOKEN,
           });
 
-          
           const string = unverifiedEmail.email.toString();
-
           console.log(string);
-        
+
 
           /*
           const encodedAuthorizationData = ethers.utils.concat([
@@ -75,21 +77,24 @@ serve({
           // Generate and sign authorization data hash
           // const authorizationDataHash = ethers.keccak256(encodedAuthorizationData);
           
-          const hash = await vlayer.prove({
-            address: constants.prover.address,
-            proverAbi: constants.prover.abi,
-            functionName: constants.prover.function,
-            args: [unverifiedEmail],
-            chainId: constants.chainId,
-          });
-
-          const provingResult = await vlayer.waitForProvingResult({ hash });
+          // const hash = await vlayer.prove({
+          //   address: constants.prover.address,
+          //   proverAbi: constants.prover.abi,
+          //   functionName: constants.prover.function,
+          //   args: [unverifiedEmail],
+          //   chainId: constants.chainId,
+          // });
+          //
+          // const provingResult = await vlayer.waitForProvingResult({ hash });
 
           // On-chain
 
           // Create client, see docs here: https://viem.sh/docs/clients/wallet
           // const client = createWalletClient({...}); 
           // const account = "";
+          
+          
+          return new Response("Everything is fine.", { status: 200 });
           
           try {
             /*
