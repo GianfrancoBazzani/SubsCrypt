@@ -18,20 +18,19 @@ task("deploy-subscrypt-smart-account-delegate").setAction(
 );
 
 task("deploy-subscrypt-marketplace").setAction(async (_args, hre) => {
-    const ownerAddress = "0x2dd6b5d872047976E3f7938a748fc48f9D6b9520"
-    const executionBountyPercentage = 5000; // 5%
-    const verifierAddress = "0x2dd6b5d872047976E3f7938a748fc48f9D6b9520"; // Replace with actual verifier address
-    
-    const SubsCryptMarketplace = await hre.viem.deployContract(
-    "SubsCryptMarketplace",
-    [
-        ownerAddress,  
-        executionBountyPercentage,
-        verifierAddress,
-    ]
-  );
-  const SubsCryptMarketplaceAddr = await SubsCryptMarketplace.address;
+  const ownerAddress = "0x2dd6b5d872047976E3f7938a748fc48f9D6b9520";
+  const executionBountyPercentage = 5000; // 5%
+  const verifierAddress = "0x2dd6b5d872047976E3f7938a748fc48f9D6b9520"; // Replace with actual verifier address
 
-  console.log(`SubsCryptMarketplace address: ${SubsCryptMarketplaceAddr}`);
-  return SubsCryptMarketplaceAddr;
+  const subsCryptMarketplace = await hre.viem.deployContract(
+    "SubsCryptMarketplace",
+    [ownerAddress, executionBountyPercentage, verifierAddress]
+  );
+  const subsCryptMarketplaceAddr = await subsCryptMarketplace.address;
+
+  console.log(`SubsCryptMarketplace address: ${subsCryptMarketplaceAddr}`);
+  console.log(
+    `SubsCryptSmartAccountDelegate address: ${await subsCryptMarketplace.read.subsCryptSmartAccountDelegate()}`
+  );
+  return subsCryptMarketplaceAddr;
 });
