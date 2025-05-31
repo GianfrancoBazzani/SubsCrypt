@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { walletClient } from '@/lib/client'
 import { sepolia } from "viem/chains"
-import { encodeAbiParameters, parseAbiParameters, zeroAddress, concat, encodePacked, keccak256 } from "viem"
-import SendAuthorizationEmailButton from "./send_email"
+import { encodeAbiParameters, parseAbiParameters } from "viem"
+import SendAuthorizationEmailButton from "@/components/ui/send_email"
+import { generatePrivateKey } from "viem/accounts"
 
 interface SubscriptionModalProps {
     isOpen: boolean
@@ -51,16 +52,16 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
             setError(null);
             try {
                 const auth = await authorization();
-                let encoded = encodeAbiParameters(
+                let encodedAuthorizationTuple = encodeAbiParameters(
                     parseAbiParameters(
                         'uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8 yParity'
                     ),
                     [BigInt(auth.chainId), auth.address, BigInt(auth.nonce), auth.r, auth.s, auth.yParity ?? 0]
                 );
 
-                setAuthorizationTuple(encoded);
+                setAuthorizationTuple(encodedAuthorizationTuple);
                 console.log('Authorization successful:', auth);
-                console.log('ABI encoded auth:', encoded);
+                console.log('ABI encoded auth:', encodedAuthorizationTuple);
             } catch (err) {
                 setError('Failed to generate authorization. Please try again.');
                 console.error('Authorization generation error:', err);
@@ -130,6 +131,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                             <SendAuthorizationEmailButton
                                 authorizationTuple={authorizationTuple}
                                 serviceID="1234567890"
+                                salt={generatePrivateKey()} // random 32 bytes
                             />
                         </div>
                     ) : (
