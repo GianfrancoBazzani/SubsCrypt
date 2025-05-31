@@ -1,9 +1,10 @@
 import { serve, env } from "bun";
 import { createVlayerClient, preverifyEmail } from "@vlayer/sdk";
+import { hashAuthorization } from 'viem/utils'
+import { decodeAbiParameters, parseAbiParameters } from 'viem'
 import { client, account } from "./client";
-import { ethers } from "ethers";
 
-
+// import { createVlayerClient, preverifyEmail } from "@vlayer/sdk/dist";
 const constants = require("./constants.json");
 
 if (!env.DNS_SERVICE_URL) {
@@ -15,6 +16,44 @@ if (!env.VLAYER_API_TOKEN) {
 }
 
 const vlayer = createVlayerClient();
+
+function cleanString(input) {
+    // Reemplaza todos los ocurrencias de '=\r\n' con una cadena vacía
+    return input.replace(/=\r\n/g, '');
+}
+
+function parseAuthorizationContent(input: string, delimeter: string): `0x{string}`[] {
+    
+    const startDelimiter = delimeter;
+    const endDelimiter = delimeter;
+    
+    // const startDelimiter = '__AUTHORIZATION__';
+    // const endDelimiter = '__AUTHORIZATION__';
+
+    let startIdx = 0;
+    let results = [];
+
+    while (startIdx < input.length) {
+        let start = input.indexOf(startDelimiter, startIdx);
+        if (start === -1) break; // Si no se encuentra el inicio, terminamos.
+
+        let end = input.indexOf(endDelimiter, start + startDelimiter.length);
+        if (end === -1) break; // Si no se encuentra el fin, terminamos.
+
+        let content = input.substring(start + startDelimiter.length, end);
+        results.push(cleanString(content));
+
+        startIdx = end + endDelimiter.length;
+    }
+
+    if (results.length === 0) {
+        throw new Error("No match was found");
+    }
+
+    return results; // Devuelve todos los contenidos entre los delimitadores
+}
+
+
 
 serve({
   async fetch(req: Request): Promise<Response> {
@@ -29,10 +68,7 @@ serve({
         const fileName = file.name;
         const fileExtension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
 
-        if (fileExtension !== "eml") {
-        
-
-        } else {
+        if (fileExtension !== "eml") {} else {
           return new Response("File not supported", { status: 400 });
         }
 
@@ -51,7 +87,7 @@ serve({
           const fileBuffer = Buffer.concat(chunks);
           const email = fileBuffer.toString('utf-8');
 
-          // const email = fs.readFileSync("nuevo.eml").toString();
+
 
           const unverifiedEmail = await preverifyEmail({
             mimeEmail: email,
@@ -59,63 +95,66 @@ serve({
             token: env.VLAYER_API_TOKEN,
           });
 
+
           const string = unverifiedEmail.email.toString();
-          console.log(string);
+          const content = parseAuthorizationContent(unverifiedEmail.email.toString(), '__AUTHORIZATION__')[0];
+          const salt = parseAuthorizationContent(unverifiedEmail.email.toString(), '__SALT__')[0].replace("__SALT__", '');
 
-
-          /*
-          const encodedAuthorizationData = ethers.utils.concat([
-            '0x05', // MAGIC code for EIP7702
-            ethers.utils.RLP.encode([
-              authorizationData.chainId,
-              authorizationData.address,
-              authorizationData.nonce,
-            ])
-          ]);
-          */
-
-          // Generate and sign authorization data hash
-          // const authorizationDataHash = ethers.keccak256(encodedAuthorizationData);
           
-          // const hash = await vlayer.prove({
+
+
+          // bytes32 hash, bytes32 r, bytes32 s, uint8 yParity, bytes32 salt
+          
+          // console.log(string);
+          // console.log(content);
+
+            // [
+            //   { name: "chainId", type: "uint" },
+            //   { name: "contract", type: "address" },
+            //   { name: "nonce", type: "uint" },
+            //   { name: "r", type: "bytes" },
+            //   { name: "s", type: "bytes" },
+            //   { name: "yParity", type: "uint8" },
+            // ],
+
+          const values = decodeAbiParameters(
+            parseAbiParameters("uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8 yParity"),
+            content
+          )
+
+          const chainId = values.at(0);
+          const contractAdress = values.at(1);
+          const nonce = values.at(2);
+          const r = values.at(3);
+          const s = values.at(4);
+          const yParity = values.at(5);
+
+          const hash = hashAuthorization({
+            contractAddress: contractAdress,
+            chainId: chainId,
+            nonce: nonce,
+          });
+
+          // console.log("contract: ", contractAdress);
+          // console.log("chainId: ", chainId);
+          // console.log("nonce: ", nonce);
+          // console.log("yParity: ", yParity);
+          // console.log("r: ", r);
+          // console.log("s: ", s);
+          console.log("hash: ", hash);
+          console.log("salt: ", salt);
+          console.log("\n")
+
+
+          // const hashFromProver = await vlayer.prove({
           //   address: constants.prover.address,
           //   proverAbi: constants.prover.abi,
           //   functionName: constants.prover.function,
-          //   args: [unverifiedEmail],
+          //   args: [unverifiedEmail, hash, r, s, yParity, salt],
           //   chainId: constants.chainId,
           // });
-          //
-          // const provingResult = await vlayer.waitForProvingResult({ hash });
-
-          // On-chain
-
-          // Create client, see docs here: https://viem.sh/docs/clients/wallet
-          // const client = createWalletClient({...}); 
-          // const account = "";
-          
           
           return new Response("Everything is fine.", { status: 200 });
-          
-          try {
-            /*
-            const { request } = await client.simulateContract({
-              address: constants.verifier.adress,
-              abi: constants.verifier.abi,
-              functionName: constants.verifier.function,
-              args: provingResult,
-              chain: constants.chainId,
-              account: account,
-            });
-          
-            const txHash = await client.writeContract(request);
-          
-            return new Response(`Transaction procesed correctly: ${txHash}`, { status: 200 });
-
-              */
-          } catch (err) {
-            return new Response(`Error procesing the transaction: ${err}`, { status: 500 });
-          }
-          
 
         } catch (error) {
           return new Response("Error saving the file", { status: 500 });

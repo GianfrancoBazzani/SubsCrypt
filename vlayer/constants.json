@@ -1,5 +1,5 @@
 {
-  "chainId": 31337,
+  "chainId": 11155111,
   "verifier": {
     "address": "",
     "abi": "",
@@ -7,7 +7,7 @@
   },
   "prover": {
     "address": "",
-    "abi": "",
+    "abi": "main",
     "function": "prove"
   }
 }
