@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi"
 import { parseEther, formatEther, zeroAddress } from "viem"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,8 +20,7 @@ import {
 } from "@/lib/contract"
 import { toast } from "sonner"
 import { sepolia } from "viem/chains"
-import { readContract } from "viem/actions"
-import { walletClient } from "@/lib/client"
+import { useServiceData } from "@/hooks/use-service-data"
 
 interface ServiceOffer {
     serviceProvider: string
@@ -42,103 +41,20 @@ export function ManageServices() {
         servicePrice: "",
         paymentInterval: PAYMENT_INTERVALS.MONTHLY.toString(),
     })
-    const [services, setServices] = useState<(ServiceOffer & { id: number })[]>([])
-    const [isLoading, setIsLoading] = useState(false)
-    const [serviceCount, setServiceCount] = useState<bigint | undefined>(undefined)
 
-    // Write contract functions
+    const { services, isLoading, serviceCount, refresh } = useServiceData()
     const { writeContract, data: hash, isPending } = useWriteContract()
-
-    // Wait for transaction confirmation
     const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
         hash,
     })
-
-    const fetchServiceData = useCallback(async (serviceId: number) => {
-        const serviceData = await readContract(
-            walletClient(),
-            {
-                address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
-                abi: SUBSCRYPT_MARKETPLACE_ABI,
-                functionName: "serviceOffers",
-                args: [BigInt(serviceId)],
-            })
-        return serviceData
-    }, [])
-
-    const fetchServiceCount = useCallback(async () => {
-        const data = await readContract(
-            walletClient(),
-            {
-                address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
-                abi: SUBSCRYPT_MARKETPLACE_ABI,
-                functionName: "serviceCount",
-            })
-
-        return data
-    }, [])
-
-    // Load services when component mounts or service count changes
-    useEffect(() => {
-        const loadInitialData = async () => {
-            const count = await fetchServiceCount()
-            if (count) {
-                setServiceCount(count as bigint)
-                loadServices(count as bigint)
-            }
-        }
-
-        loadInitialData()
-    }, [fetchServiceCount])
 
     // Handle transaction success
     useEffect(() => {
         if (isConfirmed) {
             toast.success("Transaction confirmed!")
-            const updateServiceData = async () => {
-                const count = await fetchServiceCount()
-                if (count) {
-                    setServiceCount(count as bigint)
-                    loadServices(count as bigint)
-                }
-            }
-            updateServiceData()
+            refresh()
         }
-    }, [isConfirmed, fetchServiceCount])
-
-    const loadServices = async (count: bigint) => {
-        if (!count) return
-
-        setIsLoading(true)
-        const loadedServices: (ServiceOffer & { id: number })[] = []
-
-        try {
-            for (let i = 1; i <= Number(count); i++) {
-                const serviceData = await fetchServiceData(i)
-                const [, paymentRecipient, , , ,] = serviceData
-
-                if (paymentRecipient !== zeroAddress) {
-                    const [serviceProvider, , paymentAsset, assetChainId, servicePrice, paymentInterval] =
-                        serviceData
-                    loadedServices.push({
-                        id: i,
-                        serviceProvider,
-                        paymentRecipient,
-                        paymentAsset,
-                        assetChainId,
-                        servicePrice,
-                        paymentInterval,
-                    })
-                }
-            }
-            setServices(loadedServices)
-        } catch (error) {
-            console.error("Error loading services:", error)
-            toast.error("Failed to load services")
-        } finally {
-            setIsLoading(false)
-        }
-    }
+    }, [isConfirmed])
 
     const handleInputChange = (field: string, value: string) => {
         setFormData((prev) => ({
@@ -194,21 +110,6 @@ export function ManageServices() {
             toast.error("Failed to unregister service")
         }
     }
-
-    const handleRefreshServices = async () => {
-        setIsLoading(true)
-        try {
-            const count = await fetchServiceCount()
-            if (count) {
-                setServiceCount(count as bigint)
-                await loadServices(count as bigint)
-            }
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    console.log({ serviceCount })
 
     return (
         <div className="space-y-6">
@@ -343,7 +244,7 @@ export function ManageServices() {
                                     services.filter(s => s.paymentRecipient !== zeroAddress).length
                                     : 0}</CardDescription>
                         </div>
-                        <Button variant="outline" onClick={handleRefreshServices} disabled={isLoading}>
+                        <Button variant="outline" onClick={refresh} disabled={isLoading}>
                             <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
                             Refresh
                         </Button>

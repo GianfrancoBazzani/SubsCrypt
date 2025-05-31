@@ -4,9 +4,9 @@ import { Shield, Zap, Lock, Globe, Mail, CreditCard, ArrowRight, CheckCircle, Us
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
 import { useState } from "react"
 import { SubscriptionModal } from "@/components/ui/subsription-modal"
+import Link from "next/link"
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -32,7 +32,9 @@ export default function HomePage() {
             <a href="#architecture" className="text-muted-foreground hover:text-foreground transition-colors">
               Architecture
             </a>
-            <Button onClick={() => setIsModalOpen(true)}>Start Subscription</Button>
+            <Link href="/subscriptions">
+              <Button>Start Subscription</Button>
+            </Link>
           </nav>
         </div>
       </header>
@@ -51,13 +53,14 @@ export default function HomePage() {
             subscription payment system. Pay for services without revealing your identity.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
-              onClick={() => setIsModalOpen(true)}
-            >
-              Start Subscription <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
+            <Link href="/subscriptions">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+              >
+                Start Subscription <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </Link>
             <Button size="lg" variant="outline">
               View Documentation
             </Button>
@@ -316,9 +319,11 @@ export default function HomePage() {
             Join the future of privacy-preserving payments. Set up your first private subscription in minutes.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="bg-white text-violet-600 hover:bg-gray-100" onClick={() => setIsModalOpen(true)}>
-              Start Your Subscription
-            </Button>
+            <Link href="/subscriptions">
+              <Button size="lg" variant="secondary" className="bg-white text-violet-600 hover:bg-gray-100">
+                Start Your Subscription
+              </Button>
+            </Link>
             <Button
               size="lg"
               variant="outline"
@@ -344,7 +349,6 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
-      <SubscriptionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   )
 }

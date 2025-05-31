@@ -6,14 +6,12 @@ import { AdminDashboard } from "@/components/admin/admin-dashboard"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Lock } from "lucide-react"
 
-// Admin wallet addresses (in a real app, this would be in environment variables)
 const ADMIN_ADDRESSES = [
-    "0xCE672818033695933662649260ef1E3B472dCF1B", // Replace with actual admin addresses
+    process.env.NEXT_PUBLIC_ADMIN_ADDRESSES,
 ]
 
 export default function AdminPage() {
     const { address, isConnected } = useAccount()
-    const { disconnect } = useDisconnect()
 
     const isAdmin = isConnected && address && ADMIN_ADDRESSES.includes(address)
 

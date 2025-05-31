@@ -8,26 +8,42 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { walletClient } from '@/lib/client'
 import { sepolia } from "viem/chains"
-import { encodeAbiParameters, parseAbiParameters } from "viem"
+import { encodeAbiParameters, parseAbiParameters, formatEther } from "viem"
+import { PAYMENT_INTERVAL_LABELS } from "@/lib/contract"
 import SendAuthorizationEmailButton from "@/components/ui/send_email"
 import { generatePrivateKey } from "viem/accounts"
+import { useServiceData } from "@/hooks/use-service-data"
+import { ETHER_ADDRESS } from "@/lib/constants"
+
+interface ServiceOffer {
+    id: number
+    serviceProvider: string
+    paymentRecipient: string
+    paymentAsset: string
+    assetChainId: bigint
+    servicePrice: bigint
+    paymentInterval: bigint
+}
 
 interface SubscriptionModalProps {
     isOpen: boolean
     onClose: () => void
+    service: ServiceOffer
 }
 
-export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
+export function SubscriptionModal({ isOpen, onClose, service }: SubscriptionModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isSubscribed, setIsSubscribed] = useState(() => {
-        // Check localStorage when component mounts
+        // @todo Check localStorage when component mounts
         /* if (typeof window !== 'undefined') {
             return localStorage.getItem('subscribed') === 'true';
         } */
         return false;
     });
+
     const [authorizationTuple, setAuthorizationTuple] = useState<string>("");
+    const { services, isLoading: isLoadingServiceData, serviceCount, refresh } = useServiceData();
 
     const client = walletClient();
     const authorization = async () => {
@@ -60,8 +76,6 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                 );
 
                 setAuthorizationTuple(encodedAuthorizationTuple);
-                console.log('Authorization successful:', auth);
-                console.log('ABI encoded auth:', encodedAuthorizationTuple);
             } catch (err) {
                 setError('Failed to generate authorization. Please try again.');
                 console.error('Authorization generation error:', err);
@@ -103,21 +117,29 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                 </button>
                 <CardHeader>
                     <CardTitle className="text-2xl">Start Your Subscription</CardTitle>
-                    <CardDescription>Subscription details</CardDescription>
+                    <CardDescription>Review and confirm your subscription details</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form>
                         <div className="grid gap-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="service">Service Provider</Label>
-                                <Input disabled id="service" value="ACME Provider" />
+                                <Input disabled id="service" value={service.serviceProvider} />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="amount">Monthly Amount</Label>
+                                <Label htmlFor="paymentRecipient">Payment Recipient</Label>
+                                <Input disabled id="paymentRecipient" value={service.paymentRecipient} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="amount">Payment Amount ({PAYMENT_INTERVAL_LABELS[Number(service.paymentInterval) as keyof typeof PAYMENT_INTERVAL_LABELS]})</Label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                                    <Input disabled id="amount" type="number" className="pl-7" value={10} />
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">Ξ</span>
+                                    <Input disabled id="amount" type="text" className="pl-7" value={formatEther(service.servicePrice)} />
                                 </div>
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="chain">Network</Label>
+                                <Input disabled id="chain" value="Sepolia Testnet" />
                             </div>
                         </div>
                     </form>
@@ -130,7 +152,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                         <div onClick={handleEmailSent}>
                             <SendAuthorizationEmailButton
                                 authorizationTuple={authorizationTuple}
-                                serviceID="1234567890"
+                                serviceID={service.id.toString()}
                                 salt={generatePrivateKey()} // random 32 bytes
                             />
                         </div>
