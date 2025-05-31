@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button"
 
-const SendAuthorizationEmailButton = ({ authorizationTuple }: { authorizationTuple: string }) => {
+const SendAuthorizationEmailButton = ({ authorizationTuple, serviceID }: { authorizationTuple: string, serviceID: string }) => {
     const serviceProviderEmail = "gordi2015ferrai@gmail.com";
-    const subject = "Authorization for Subscription Payment – SubsCrypt";
+    const subject = `Authorization for Subscription Payment – SubsCrypt - serviceID: ${serviceID}`;
   
     const body = `Hello,
 
