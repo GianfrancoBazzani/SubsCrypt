@@ -2,33 +2,31 @@
 pragma solidity 0.8.28;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {SubsCryptSmartAccountDelegate} from "./SubsCryptSmartAccountDelegate.sol";
 
 contract SubsCryptMarketplace is Ownable {
     // Types
-    enum PaymentInterval {
-        HOURLY,
-        DAILY,
-        WEEKLY,
-        MONTHLY,
-        YEARLY
-    }
-
     struct ServiceOffer {
         //TODO iterate this struct
         address serviceProvider;
         address paymentRecipient;
         address paymentAsset;
         uint256 assetChainId;
-        uint256 servicePrice; // in wei/hour
-        PaymentInterval paymentInterval;
+        uint256 servicePrice; // in wei/seconds
+        uint256 paymentInterval; // seconds
     }
 
     // Events
     event ServiceRegistered(
         address indexed paymentRecipient,
         uint256 serviceId,
-        uint256 servicePrice, // in wei/hour
-        PaymentInterval paymentInterval
+        uint256 servicePrice, // in wei/secons
+        uint256 paymentInterval // seconds
+    );
+
+    event AccountInitialized(
+        uint256 indexed serviceId,
+        address indexed account
     );
 
     // Errors
@@ -45,6 +43,7 @@ contract SubsCryptMarketplace is Ownable {
     uint256 public executionBountyPercentage;
     uint256 public serviceCount;
     mapping(uint256 serviceId => ServiceOffer) public serviceOffers;
+    mapping(address account => uint256 serviceId) public accountToServices;
 
     // Modifiers
     modifier onlyVerifier() {
@@ -59,8 +58,9 @@ contract SubsCryptMarketplace is Ownable {
     ) Ownable(_owner) {
         executionBountyPercentage = _executionBountyPercentage;
         verifier = _verifier;
-
-        // TODO: Deploy SubsCryptSmartAccountDelegate
+        subsCryptSmartAccountDelegate = address(
+            new SubsCryptSmartAccountDelegate()
+        );
     }
 
     // Service provider marketplace functions
@@ -103,7 +103,7 @@ contract SubsCryptMarketplace is Ownable {
     }
 
     // Verifier functions
-    function InitializeAccount(
+    function initializeAccount(
         uint256 Id,
         address account
     ) external onlyVerifier {
@@ -112,12 +112,25 @@ contract SubsCryptMarketplace is Ownable {
             serviceOffer.paymentRecipient != address(0),
             ServiceNotRegistered()
         );
+
+
         // TODO: Check if account is EIP-7702 delegated to subsCryptSmartAccountDelegate
+        emit AccountInitialized(
+            Id,
+            account
+        );
     }
 
     // Payment trigger logic
     function batchExecutePayments() external {}
-    function _executePayment() internal {}
+    function _executePayment() internal {
+        // Check if the service is available        
+        // TODO
+
+        // account.pullFunds(accountAssetInBalance).
+        // if assetChainId != this chainId , swap and bridge.
+        // if paymentAsset != accountAssetInBalance swap.
+    }
 
     // View functions
     function isServiceAvailable(uint256 Id) external view returns (bool) {
