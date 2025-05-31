@@ -20,7 +20,7 @@ We can leverage EIP-7702 to enable non-interactive payments, meaning that only a
 ### Ephemeral "Payment" EOA Private Key Abstracts Key Management From User
 Since once the EIP-7702 delegation is activated we can control de implementation code of the EOA programatically there is not need for the user to hold the private key of the EOA, as we can implement email authentication mechanism to allow the user to recover the funds from the address.
 
-### Highly Liquid Stream
+### Granular Payment Stream
 The service provider can pull the funds whenever he wants since we implement a stream payment that accrues the paid amount per unit of time. Ideally, the service provider will periodically pull funds from the payment EOA.
 
 ### Adding Multi-currency and Multi-chain Features with 1inch Fusion+
