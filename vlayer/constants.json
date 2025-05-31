@@ -1,0 +1,13 @@
+{
+  "chainId": 31337,
+  "verifier": {
+    "address": "",
+    "abi": "",
+    "function": "verify"
+  },
+  "prover": {
+    "address": "",
+    "abi": "",
+    "function": "prove"
+  }
+}
