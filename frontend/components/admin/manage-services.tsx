@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useCallback } from "react"
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi"
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi"
 import { parseEther, formatEther, zeroAddress } from "viem"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,8 @@ import {
 } from "@/lib/contract"
 import { toast } from "sonner"
 import { sepolia } from "viem/chains"
+import { readContract } from "viem/actions"
+import { walletClient } from "@/lib/client"
 
 interface ServiceOffer {
     serviceProvider: string
@@ -53,21 +55,26 @@ export function ManageServices() {
     })
 
     const fetchServiceData = useCallback(async (serviceId: number) => {
-        const { data: serviceData } = useReadContract({
-            address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
-            abi: SUBSCRYPT_MARKETPLACE_ABI,
-            functionName: "serviceOffers",
-            args: [BigInt(serviceId)],
-        })
+        const serviceData = await readContract(
+            walletClient(),
+            {
+                address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
+                abi: SUBSCRYPT_MARKETPLACE_ABI,
+                functionName: "serviceOffers",
+                args: [BigInt(serviceId)],
+            })
         return serviceData
     }, [])
 
     const fetchServiceCount = useCallback(async () => {
-        const { data } = useReadContract({
-            address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
-            abi: SUBSCRYPT_MARKETPLACE_ABI,
-            functionName: "serviceCount",
-        })
+        const data = await readContract(
+            walletClient(),
+            {
+                address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
+                abi: SUBSCRYPT_MARKETPLACE_ABI,
+                functionName: "serviceCount",
+            })
+
         return data
     }, [])
 
@@ -108,9 +115,10 @@ export function ManageServices() {
         try {
             for (let i = 1; i <= Number(count); i++) {
                 const serviceData = await fetchServiceData(i)
+                const [, paymentRecipient, , , ,] = serviceData
 
-                if (serviceData) {
-                    const [serviceProvider, paymentRecipient, paymentAsset, assetChainId, servicePrice, paymentInterval] =
+                if (paymentRecipient !== zeroAddress) {
+                    const [serviceProvider, , paymentAsset, assetChainId, servicePrice, paymentInterval] =
                         serviceData
                     loadedServices.push({
                         id: i,
@@ -199,6 +207,8 @@ export function ManageServices() {
             setIsLoading(false)
         }
     }
+
+    console.log({ serviceCount })
 
     return (
         <div className="space-y-6">
@@ -328,7 +338,10 @@ export function ManageServices() {
                     <div className="flex items-center justify-between">
                         <div>
                             <CardTitle>Existing Services</CardTitle>
-                            <CardDescription>Total services: {serviceCount ? Number(serviceCount) : 0}</CardDescription>
+                            <CardDescription>Total services: {
+                                serviceCount ?
+                                    services.filter(s => s.paymentRecipient !== zeroAddress).length
+                                    : 0}</CardDescription>
                         </div>
                         <Button variant="outline" onClick={handleRefreshServices} disabled={isLoading}>
                             <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />

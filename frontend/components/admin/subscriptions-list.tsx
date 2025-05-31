@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Search, MoreHorizontal, Eye, Ban, RefreshCw } from "lucide-react"
 import { SUBSCRYPT_MARKETPLACE_ABI, SUBSCRYPT_MARKETPLACE_ADDRESS, PAYMENT_INTERVAL_LABELS } from "@/lib/contract"
 import { toast } from "sonner"
+import { ETHER_ADDRESS } from "@/lib/constants"
 
 // ERC20 ABI for getting token symbol and decimals
 const ERC20_ABI = [
@@ -52,7 +53,7 @@ export function SubscriptionsList() {
 
     // Read contract functions
     const { data: serviceCount } = useReadContract({
-        address: SUBSCRYPT_MARKETPLACE_ADDRESS,
+        address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
         abi: SUBSCRYPT_MARKETPLACE_ABI,
         functionName: "serviceCount",
     })
@@ -60,7 +61,7 @@ export function SubscriptionsList() {
     const fetchServiceData = useCallback(async (serviceId: number) => {
         try {
             const { data: serviceData } = await useReadContract({
-                address: SUBSCRYPT_MARKETPLACE_ADDRESS,
+                address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
                 abi: SUBSCRYPT_MARKETPLACE_ABI,
                 functionName: "serviceOffers",
                 args: [BigInt(serviceId)],
@@ -75,7 +76,7 @@ export function SubscriptionsList() {
             let tokenDecimals = 18
 
             // If not ETH (address(0)), try to get symbol and decimals from token contract
-            if (paymentAsset !== zeroAddress) {
+            if (paymentAsset.toLowerCase() !== ETHER_ADDRESS.toLowerCase()) {
                 try {
                     const { data: symbol } = await useReadContract({
                         address: paymentAsset,
@@ -103,7 +104,7 @@ export function SubscriptionsList() {
                 paymentAsset,
                 assetChainId,
                 servicePrice,
-                paymentInterval,
+                paymentInterval: Number(paymentInterval),
                 tokenSymbol,
                 tokenDecimals,
             }
@@ -189,7 +190,7 @@ export function SubscriptionsList() {
             <Card>
                 <CardHeader>
                     <CardTitle>All Subscriptions</CardTitle>
-                    <CardDescription>Total subscriptions: {serviceCount ? Number(serviceCount) : 0}</CardDescription>
+                    <CardDescription>Total subscriptions: {filteredServices.filter(s => s.paymentRecipient !== zeroAddress).length && 0}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
@@ -203,7 +204,7 @@ export function SubscriptionsList() {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {filteredServices.map((service) => (
+                            {filteredServices.filter(s => s.paymentRecipient !== zeroAddress).map((service) => (
                                 <div
                                     key={service.id}
                                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -227,7 +228,7 @@ export function SubscriptionsList() {
                                         </div>
                                         <p className="text-xs text-muted-foreground">
                                             Chain ID: {service.assetChainId.toString()} • Asset:{" "}
-                                            {service.paymentAsset === zeroAddress
+                                            {service.paymentAsset.toLowerCase() === ETHER_ADDRESS.toLowerCase()
                                                 ? "Native Token"
                                                 : formatAddress(service.paymentAsset)}
                                         </p>

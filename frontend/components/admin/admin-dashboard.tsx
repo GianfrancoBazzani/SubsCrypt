@@ -4,14 +4,12 @@ import { useState } from "react"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Settings, DollarSign, UserCheck, AlertCircle } from "lucide-react"
-import { AdminSidebar } from "./admin-sidebar"
-import { AnalyticsOverview } from "./analytics-overview"
-import { SubscriptionsList } from "./subscriptions-list"
-import { SystemSettings } from "./system-settings"
-import { ManageServices } from "./manage-services"
+import { AdminSidebar } from "@/components/admin/admin-sidebar"
+import { SubscriptionsList } from "@/components/admin/subscriptions-list"
+import { ManageServices } from "@/components/admin/manage-services"
 
 export function AdminDashboard() {
-    const [activeTab, setActiveTab] = useState("subscriptions")
+    const [activeTab, setActiveTab] = useState("services")
 
     return (
         <div className="min-h-screen bg-background">
@@ -36,68 +34,8 @@ export function AdminDashboard() {
 
                 {/* Main Content */}
                 <main className="flex-1 p-6">
-                    {activeTab === "overview" && (
-                        <div className="space-y-6">
-                            <div>
-                                <h2 className="text-3xl font-bold mb-2">Dashboard Overview</h2>
-                                <p className="text-muted-foreground">Monitor your SubsCrypt platform performance</p>
-                            </div>
-
-                            {/* Stats Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                <Card>
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">Total Subscriptions</CardTitle>
-                                        <Users className="h-4 w-4 text-muted-foreground" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold">1,234</div>
-                                        <p className="text-xs text-muted-foreground">+12% from last month</p>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">Active Subscriptions</CardTitle>
-                                        <UserCheck className="h-4 w-4 text-muted-foreground" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold">987</div>
-                                        <p className="text-xs text-muted-foreground">+8% from last month</p>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-                                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold">$45,231</div>
-                                        <p className="text-xs text-muted-foreground">+15% from last month</p>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">Failed Payments</CardTitle>
-                                        <AlertCircle className="h-4 w-4 text-muted-foreground" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold">23</div>
-                                        <p className="text-xs text-muted-foreground">-5% from last month</p>
-                                    </CardContent>
-                                </Card>
-                            </div>
-
-                            <AnalyticsOverview />
-                        </div>
-                    )}
-
-                    {activeTab === "subscriptions" && <SubscriptionsList />}
-                    {activeTab === "analytics" && <AnalyticsOverview />}
-                    {activeTab === "settings" && <SystemSettings />}
                     {activeTab === "services" && <ManageServices />}
+                    {activeTab === "subscriptions" && <SubscriptionsList />}
                 </main>
             </div>
         </div>

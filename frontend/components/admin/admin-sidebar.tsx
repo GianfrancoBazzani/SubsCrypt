@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { BarChart3, Users, Settings, Home, Package } from "lucide-react"
+import { Users, Package } from "lucide-react"
 
 interface AdminSidebarProps {
     activeTab: string
@@ -10,31 +10,16 @@ interface AdminSidebarProps {
 }
 
 const sidebarItems = [
-    // {
-    //     id: "overview",
-    //     label: "Overview",
-    //     icon: Home,
-    // },
-    {
-        id: "subscriptions",
-        label: "Subscriptions",
-        icon: Users,
-    },
     {
         id: "services",
         label: "Manage Services",
         icon: Package,
     },
-    // {
-    //     id: "analytics",
-    //     label: "Analytics",
-    //     icon: BarChart3,
-    // },
-    // {
-    //     id: "settings",
-    //     label: "Settings",
-    //     icon: Settings,
-    // },
+    {
+        id: "subscriptions",
+        label: "Subscriptions",
+        icon: Users,
+    }
 ]
 
 export function AdminSidebar({ activeTab, setActiveTab }: AdminSidebarProps) {
