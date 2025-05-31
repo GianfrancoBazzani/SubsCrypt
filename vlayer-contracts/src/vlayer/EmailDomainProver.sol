@@ -9,7 +9,7 @@ import {Prover} from "vlayer-0.1.0/Prover.sol";
 import {RegexLib} from "vlayer-0.1.0/Regex.sol";
 import {VerifiedEmail, UnverifiedEmail, EmailProofLib} from "vlayer-0.1.0/EmailProof.sol";
 
-contract EmailDomainProver is Prover, ECDSA {
+contract EmailDomainProver is Prover {
     using RegexLib for string;
     using Strings for string;
     using EmailProofLib for UnverifiedEmail;
@@ -39,7 +39,8 @@ contract EmailDomainProver is Prover, ECDSA {
         revert("Invalid hex character");
     }
 
-        // Función para convertir un string a uint
+
+    // Función para convertir un string a uint
     function stringToUint(string memory str) public pure returns (uint) {
         uint result = 0;
         bytes memory b = bytes(str);  // Convertir el string a bytes
@@ -47,8 +48,11 @@ contract EmailDomainProver is Prover, ECDSA {
         for (uint i = 0; i < b.length; i++) {
             // Asegurarse de que el carácter es un número
             require(b[i] >= 0x30 && b[i] <= 0x39, "Input string is not a valid number");
+
+            // Convertir el byte a uint8, luego al valor numérico
+            uint8 digit = uint8(b[i]) - 0x30; // '0x30' es el valor ASCII del carácter '0'
             
-            result = result * 10 + (uint(b[i]) - 0x30); // '0x30' es el valor ASCII del carácter '0'
+            result = result * 10 + digit;
         }
         
         return result;
@@ -58,7 +62,7 @@ contract EmailDomainProver is Prover, ECDSA {
         public
         // view
         // returns (string memory authResult)
-        returns (Proof memory, uint256, string memory, address)
+        returns (Proof memory, uint256, bytes32, address)
     {
         VerifiedEmail memory email = unverifiedEmail.verify();
 
@@ -67,13 +71,13 @@ contract EmailDomainProver is Prover, ECDSA {
         require(serviceID.length >= 2, "no serviceID in subject");
         console.log("serviceID: ", serviceID[1]);
         
-        address signer = tryRecover(hash, yParity, r, s);
+        (address signer, , ) = ECDSA.tryRecover(hash, yParity, r, s);
         require(signer != address(0), "invalid address");
 
         console.log("signer: ");
         console.log(signer);
 
-        require(email.to == "gordi2015ferrai@gmail.com", "the email does not have the expected receiver");
+        require(keccak256(bytes(email.to)) == keccak256(bytes("gordi2015ferrai@gmail.com")), "the email does not have the expected receiver");
 
         // string[] memory captures = email.from.capture("^[\\w.-]+@([a-zA-Z\\d.-]+\\.[a-zA-Z]{2,})$");
         // require(captures.length == 2, "invalid email domain");

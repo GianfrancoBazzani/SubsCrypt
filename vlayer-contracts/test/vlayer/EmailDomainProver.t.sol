@@ -32,8 +32,8 @@ contract EmailDomainProverTest is VTest {
         VerifiedEmail memory verifiedEmail = wrapper.verify(email);
         // callProver();
 
-        (string memory auth) = prover.main(email);
-        console.log(auth);
+        // (string memory auth) = prover.main(email);
+        // console.log(auth);
 
         // assertEq(emailHash, sha256(abi.encodePacked(verifiedEmail.from)));
         // assertEq(registeredWallet, johnDoe);
