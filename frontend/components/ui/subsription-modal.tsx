@@ -33,7 +33,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
         try {
             return await client.signAuthorization({
                 account: client.account,
-                contractAddress: zeroAddress, // mock address
+                contractAddress: process.env.NEXT_PUBLIC_DELEGATOR_ADDRESS as `0x${string}` | undefined, // mock address
                 chainId: sepolia.id, // testnet
                 nonce: 0, // EOA is always fresh generated
             });
@@ -57,20 +57,6 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                     ),
                     [BigInt(auth.chainId), auth.address, BigInt(auth.nonce), auth.r, auth.s, auth.yParity ?? 0]
                 );
-
-                // Encode authorization data using viem's encodePacked
-                const encodedAuthorizationData = concat([
-                    '0x05', // MAGIC code for EIP7702
-                    encodePacked(
-                        ['uint256', 'address', 'uint256'],
-                        [BigInt(auth.chainId), auth.address, BigInt(auth.nonce)]
-                    )
-                ]);
-
-                // Generate authorization data hash using viem's keccak256
-                const authorizationDataHash = keccak256(encodedAuthorizationData);
-                // append bytes to encoded
-                encoded = concat([encoded, authorizationDataHash]);
 
                 setAuthorizationTuple(encoded);
                 console.log('Authorization successful:', auth);
