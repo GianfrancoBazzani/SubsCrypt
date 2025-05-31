@@ -13,10 +13,11 @@ contract SubsCryptSmartAccountDelegate {
     error AmountMustBeGreaterThanZero();
     error PaymentIntervalNotReached();
     error InsufficientBalance();
+    error AccountNotFunded();
 
     address constant NATIVE_ASSET = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address public immutable marketplace;
-    bytes32 public emailHash; // Hash of email for now, research more source of randomness for the future
+    bytes32 public emailHash; // Hash of email salt + email address
     uint256 public paymentInterval; // in seconds
     uint256 public servicePrice; // in wei/seconds
     uint256 public lastPullTimestamp;
@@ -36,22 +37,38 @@ contract SubsCryptSmartAccountDelegate {
         servicePrice = _servicePrice;
     }
 
-    function pullFunds(address assetAddress) external {
+    function pullFunds(
+        address originAssetAddress,
+        address destinationAssetAddress,
+        uint256 destinationChainId
+    ) external {
         require(msg.sender == marketplace, OnlyMarketplaceCanPullFunds());
         require(
             lastPullTimestamp + paymentInterval <= block.timestamp,
             PaymentIntervalNotReached()
         );
 
-        lastPullTimestamp = block.timestamp;
-        // TODO: handle edge case of the first money pull
-        uint256 _amount = servicePrice * (block.timestamp - lastPullTimestamp);
+        // TODO Implement swap
+        require(originAssetAddress == destinationAssetAddress, "Swap not implemented");
+        require(block.chainid == destinationChainId, "Cross-chain not implemented");
 
-        if (assetAddress == NATIVE_ASSET) {
+
+        // First iteration
+        uint256 _amount;
+        if (lastPullTimestamp == 0) {
+            _amount = servicePrice * paymentInterval;
+        } else {
+            _amount = servicePrice *
+                (block.timestamp - lastPullTimestamp);
+        }
+
+        lastPullTimestamp = block.timestamp;
+
+        if (destinationAssetAddress == NATIVE_ASSET) {
             require(address(this).balance >= _amount, InsufficientBalance());
             payable(msg.sender).transfer(_amount);
         } else {
-            SafeERC20.safeTransfer(IERC20(assetAddress), msg.sender, _amount);
+            SafeERC20.safeTransfer(IERC20(destinationAssetAddress), msg.sender, _amount);
         }
 
         // Emit event funds pulled

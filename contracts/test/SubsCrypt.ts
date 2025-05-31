@@ -322,7 +322,11 @@ describe("SubsCrypt", function () {
         account: verifier.account.address,
       }
     );
+    
+
   });
+
+
 
   describe("DUMMY", function () {
     it("DUMMY", async function () {

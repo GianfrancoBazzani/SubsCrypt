@@ -3,17 +3,23 @@ pragma solidity 0.8.28;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {SubsCryptSmartAccountDelegate} from "./SubsCryptSmartAccountDelegate.sol";
+import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract SubsCryptMarketplace is Ownable {
     // Types
     struct ServiceOffer {
-        //TODO iterate this struct
         address serviceProvider;
         address paymentRecipient;
         address paymentAsset;
         uint256 assetChainId;
         uint256 servicePrice; // in wei/seconds
         uint256 paymentInterval; // seconds
+    }
+
+    struct PullFundsParams {
+        address account;
+        address assetAddress;
+        address feeReceiverAddress;
     }
 
     // Events
@@ -37,6 +43,7 @@ contract SubsCryptMarketplace is Ownable {
     error ServiceNotRegistered();
     error AccountNotEIP7702Delegated();
 
+    address constant NATIVE_ASSET = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address public immutable verifier;
     address public immutable subsCryptSmartAccountDelegate;
 
@@ -117,28 +124,85 @@ contract SubsCryptMarketplace is Ownable {
         require(
             keccak256(account.code) ==
                 keccak256(
-                    abi.encodePacked(
-                        hex'ef0100',
-                        subsCryptSmartAccountDelegate
-                    )
+                    abi.encodePacked(hex"ef0100", subsCryptSmartAccountDelegate)
                 ),
             AccountNotEIP7702Delegated()
         );
 
-        SubsCryptSmartAccountDelegate(account).initialize(emailHash, serviceOffer.paymentInterval, serviceOffer.servicePrice);
-        
+        SubsCryptSmartAccountDelegate(account).initialize(
+            emailHash,
+            serviceOffer.paymentInterval,
+            serviceOffer.servicePrice
+        );
 
         emit AccountInitialized(Id, account);
     }
 
     // Payment trigger logic
-    function batchExecutePayments() external {}
-    function _executePayment() internal {
-        // Check if the service is available
-        // TODO
-        // account.pullFunds(accountAssetInBalance).
-        // if assetChainId != this chainId , swap and bridge.
-        // if paymentAsset != accountAssetInBalance swap.
+    function batchExecutePayments(
+        PullFundsParams[] memory paramsArray
+    ) external {
+        for (uint256 i = 0; i < paramsArray.length; i++) {
+            PullFundsParams memory params = paramsArray[i];
+            uint256 serviceId = accountToServices[params.account];
+            require(serviceId != 0, "Service not registered for this account");
+            _executePayment(params, serviceId);
+        }
+    }
+    function _executePayment(
+        PullFundsParams memory params,
+        uint256 serviceId
+    ) internal {
+        ServiceOffer storage serviceOffer = serviceOffers[serviceId];
+        require(
+            serviceOffer.paymentRecipient != address(0),
+            ServiceNotRegistered()
+        );
+
+        uint256 balanceBefore;
+        if (serviceOffer.paymentAsset == NATIVE_ASSET) {
+            balanceBefore = address(params.account).balance;
+        } else {
+            balanceBefore = IERC20(params.assetAddress).balanceOf(
+                params.account
+            );
+        }
+
+        SubsCryptSmartAccountDelegate(params.account).pullFunds(
+            params.assetAddress,
+            serviceOffer.paymentAsset,
+            serviceOffer.assetChainId
+        );
+
+        uint256 balanceAfter;
+        if (serviceOffer.paymentAsset == NATIVE_ASSET) {
+            balanceAfter = address(params.account).balance;
+        } else {
+            balanceAfter = IERC20(params.assetAddress).balanceOf(
+                params.account
+            );
+        }
+
+        uint256 amountPaid = balanceAfter - balanceBefore;
+        uint256 amountToTransfer = (amountPaid *
+            (100_000 - executionBountyPercentage)) / 100_000;
+        uint256 feeAmount = (amountPaid * executionBountyPercentage) / 100_000;
+
+        if (serviceOffer.paymentAsset == NATIVE_ASSET) {
+            payable(serviceOffer.paymentRecipient).transfer(amountToTransfer);
+            payable(params.feeReceiverAddress).transfer(feeAmount);
+        } else {
+            SafeERC20.safeTransfer(
+                IERC20(serviceOffer.paymentAsset),
+                serviceOffer.paymentRecipient,
+                amountToTransfer
+            );
+            SafeERC20.safeTransfer(
+                IERC20(serviceOffer.paymentAsset),
+                params.feeReceiverAddress,
+                feeAmount
+            );
+        }
     }
 
     // View functions
