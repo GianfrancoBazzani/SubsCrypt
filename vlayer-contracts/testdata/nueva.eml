@@ -1,0 +1,124 @@
+Delivered-To: gordi2015ferrai@gmail.com
+Received: by 2002:a17:522:3792:b0:603:3cbd:9c67 with SMTP id u18csp1832646pvi;
+        Sat, 31 May 2025 11:15:47 -0700 (PDT)
+X-Received: by 2002:a17:907:934e:b0:ad8:9c97:c2eb with SMTP id a640c23a62f3a-adb493e066emr269309366b.19.1748715346795;
+        Sat, 31 May 2025 11:15:46 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1748715346; cv=none;
+        d=google.com; s=arc-20240605;
+        b=d9u1u4GqiHrAb7XvBOASJkd9Z7sCitjEcMDEBR4DEnX4C5UGENUASZSsPnoK4Bnlg+
+         lWdFFUOEBQy8vxgn0t7C/qqKGsvHBhmVinsqLN9n3Yow/lntuLTod5voIAL2RXz3kzWo
+         ItMI534dWnhNZHxsfVA14jwNv80PWispgrSA23ginR7lbkxw7H80XdSGJEnn0vX9hRQa
+         TMOHHAdWgdIi/BQzWXk9BWtVC7+lFPwhdhSffTQPMAB1V5nqAgGw/2Qv8VcUhSHI8u1e
+         i7yVkEtqVL5Elptp39H99RkAE7FWm7YDH+mqz1L2J6dQwmQKQaBaLwctlm2D2Bo9mI3m
+         EZ8Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:date:message-id:subject:mime-version:content-transfer-encoding
+         :from:dkim-signature;
+        bh=9NovCiTTJribG5Df2DXHpwqi6Sm+gJgfGhkmJJa17Ek=;
+        fh=XMsS1Kxpc/gMb26S4p8c93zrmMrLDmV4Pg4fJD+4Q4s=;
+        b=WPPm91+w7qcIUdI5cuoKXYp5fxwmpvKvPT6s1OGJD+SBUeyY41MJjnt7vu3u7FRmyj
+         gPvEUPDaAr4Esenarta+DM9dqSy3zo+BQBm5OQGfAokq1kujIOyDL5XP9F2JAVTtGnCs
+         kA75Vvg8Fo+VFBBut54iQ6wRsbdMm5lgyFw8FZ52dvTJg3Xv7SKAUhvl8HaMDRzu1VqW
+         YVoSSDfF1V66TpRnGJgI3AlcW57v4bICQqy6wpR9FoCQDS6UfRhm4BVh7qoFVOrQk203
+         hPSaN2ZV6O++9RuMtjzQY7L5rM1PNyCq1zNe8AsdppurqiabYsLU2BDQQK3ph/G3kqaA
+         0Fkg==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=NdUpW4ru;
+       spf=pass (google.com: domain of jonasmerhej1@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=jonasmerhej1@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@gmail.com
+Return-Path: <jonasmerhej1@gmail.com>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])
+        by mx.google.com with SMTPS id a640c23a62f3a-ada5dc83dc1sor328426966b.7.2025.05.31.11.15.46
+        for <gordi2015ferrai@gmail.com>
+        (Google Transport Security);
+        Sat, 31 May 2025 11:15:46 -0700 (PDT)
+Received-SPF: pass (google.com: domain of jonasmerhej1@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=NdUpW4ru;
+       spf=pass (google.com: domain of jonasmerhej1@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=jonasmerhej1@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@gmail.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748715346; x=1749320146; dara=google.com;
+        h=to:date:message-id:subject:mime-version:content-transfer-encoding
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=9NovCiTTJribG5Df2DXHpwqi6Sm+gJgfGhkmJJa17Ek=;
+        b=NdUpW4ru8giJdnPZ6jqmfUDExGJAiP49qv/2s40F4naFlsQSwKpbboigVJ0pE5Z9Mn
+         f5ZnKSREg9WuikPqQlATBGl8rh6p60UAgNNWIWw/dyRAkbQWCKK+xtXybwedzMDzoGCe
+         SW2ZQHfVoEIswwncSoDBOwH8V9YfYztYxjDxD1ECjg8qLPCzJlxn/oZhD6/Mmy7P3vda
+         qiJuid2/kKvdcMfocrUCsAkVayytfOz/8HCLU43qcjOfloOk1HDPjdu8k4hB8WWyAlxF
+         PZN3KsDG56eTpPahRxdbhXvIS1vCPPuDWUZl1SnrCw5ZEnu5peiAwmS0Kys/EaS1wT6b
+         cIdg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748715346; x=1749320146;
+        h=to:date:message-id:subject:mime-version:content-transfer-encoding
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=9NovCiTTJribG5Df2DXHpwqi6Sm+gJgfGhkmJJa17Ek=;
+        b=GODMwpprRPj5D+2s6uhYvxQg2TjRamj+jNgW60Y1QR6Cbs3wehsetkNgqQNrgyX4d8
+         674CJxsXsjRe8mmveesp+L6ZWwDKdc7cetuCEUzAGracczrsmqFxp+p5BAJx3QMIfOMI
+         wigvOJYwCjqKb05Mx2Z/Wapm3Cmw/CDvpTw9VohbPTNdEikDWtmTn3B/vX0tJ05h6DUs
+         6kkf3D/FFHBbX9zUTpHjxjBDWJs9cErKDlxPhJqQovZBPHe9jwEVuKsVEcQdZazwsDee
+         9PvBann7eGqJjT16LMsXFILA7Wt8HAfQhK0Gjapm4I3RsQ1alzz4VuSfFWj3LZBpmEnj
+         LvkA==
+X-Gm-Message-State: AOJu0Yyw+a+c+LzWRPQ1yx60xW/6CAtY7h9WPxEfi8aI0ymoG4hDN8+Y
+	CBIOIPTZehIgTuFHZDLjfnbK+hMzWvd9gwN9zOMPuhqe2pax0GRADDghqVSuoVtyVkWt+pLB
+X-Gm-Gg: ASbGnct1gPt0UTQyWTE30e6eM60lt+gWgA6CbcZLH22zgUwHLWv1gk40nKOJEyIrwGr
+	BXx2FA86LGx2TdczPdSL7EEQWSQNmg14XSAgiHcmr8i1txnUxQlHqceNLvaSiekOminxOhfh0FR
+	4jnnX0XcBOnprBqG29SOisFTwk4oC0UF7CJ2uakOyaDwug6pFkVDk6FS0vrKFeHQPjyAKzD6EHL
+	jDnZ7gcH+pW+Adby4KoLn0CtBoT8PhmPSv7Usil93VIuJKVNLMQsQKscezC9gYN8b816cKkgTZe
+	mtrnnqYW2xMu2rMNsxuoPpjckQ3pUvMS+56PO1lABmcBwUoXj1abLaNt234B6/J0rilAjvEx/8T
+	H1dY2M/XVcQzc6d40THQ=
+X-Google-Smtp-Source: AGHT+IG02FY8rJ+5k7Vs7it6bPnac5YHY0600lxaiGVM0UxtCztHB90uu3V6FQolr0VI9QMGnWg3YA==
+X-Received: by 2002:a17:906:9fce:b0:ad8:9257:5734 with SMTP id a640c23a62f3a-adb493df71fmr278740166b.18.1748715345544;
+        Sat, 31 May 2025 11:15:45 -0700 (PDT)
+Return-Path: <jonasmerhej1@gmail.com>
+Received: from smtpclient.apple ([195.113.187.136])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ada5e878178sm536083066b.91.2025.05.31.11.15.44
+        for <gordi2015ferrai@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 31 May 2025 11:15:44 -0700 (PDT)
+From: Jonas Merhej <jonasmerhej1@gmail.com>
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.600.51.1.1\))
+Subject: =?utf-8?Q?Authorization_for_Subscription_Payment_=E2=80=93_SubsCr?=
+ =?utf-8?Q?ypt_-_serviceID=3A_1234567890?=
+Message-Id: <5C6C0260-E70F-4B36-B0F2-43EF1D69E539@gmail.com>
+Date: Sat, 31 May 2025 20:15:34 +0200
+To: gordi2015ferrai@gmail.com
+X-Mailer: Apple Mail (2.3826.600.51.1.1)
+
+Hello,
+
+I authorize the subscription payment for the service I am subscribing to =
+via SubsCrypt.
+
+The authorization tuple below represents my signed delegation, which =
+binds this email to the designated "payment" EOA under the SubsCrypt =
+protocol. This signature confirms my consent to the smart contract =
+delegation required for non-interactive, privacy-preserving recurring =
+payments.
+
+=
+__AUTHORIZATION__0x0000000000000000000000000000000000000000000000000000000=
+000aa36a700000000000000000000000000000000000000000000000000000000000000000=
+000000000000000000000000000000000000000000000000000000000000000ef0a0562987=
+3bcd67e3de3e8bba6bdfc9f5c7add12707adf436edeb5c4d14fb21258d18a70dec6b6fbd5f=
+201d20b39108dbf20af1ff25366748f2322f3cde4c20000000000000000000000000000000=
+0000000000000000000000000000000010daf3e014994d74ac1b54626008273f032af9377a=
+69e0d0efe0e5451d7f28af1__AUTHORIZATION__
+
+By submitting this email, I confirm that I understand:
+- My email identity has been verified off-chain using Vlayer ZK-proofs.
+- The linked EOA is generated and controlled specifically for =
+subscription payments.
+- The EOA has been delegated under EIP-7702 to allow non-interactive =
+streaming of funds.
+- The service provider is authorized to periodically pull subscription =
+fees according to the agreed-upon schedule.
+
+This process ensures a secure, private, and transparent subscription =
+payment experience.=
