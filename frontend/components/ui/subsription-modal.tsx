@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { walletClient } from '@/lib/client'
 import { sepolia } from "viem/chains"
-import { encodeAbiParameters, parseAbiParameters, zeroAddress } from "viem"
+import { encodeAbiParameters, parseAbiParameters, zeroAddress, concat, encodePacked, keccak256 } from "viem"
 import SendAuthorizationEmailButton from "./send_email"
 
 interface SubscriptionModalProps {
@@ -46,17 +46,32 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
     useEffect(() => {
         const generateAuthorizationTuple = async () => {
             if (!isOpen) return;
-            
+
             setIsLoading(true);
             setError(null);
             try {
                 const auth = await authorization();
-                const encoded = encodeAbiParameters(
+                let encoded = encodeAbiParameters(
                     parseAbiParameters(
                         'uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8 yParity'
                     ),
                     [BigInt(auth.chainId), auth.address, BigInt(auth.nonce), auth.r, auth.s, auth.yParity ?? 0]
                 );
+
+                // Encode authorization data using viem's encodePacked
+                const encodedAuthorizationData = concat([
+                    '0x05', // MAGIC code for EIP7702
+                    encodePacked(
+                        ['uint256', 'address', 'uint256'],
+                        [BigInt(auth.chainId), auth.address, BigInt(auth.nonce)]
+                    )
+                ]);
+
+                // Generate authorization data hash using viem's keccak256
+                const authorizationDataHash = keccak256(encodedAuthorizationData);
+                // append bytes to encoded
+                encoded = concat([encoded, authorizationDataHash]);
+
                 setAuthorizationTuple(encoded);
                 console.log('Authorization successful:', auth);
                 console.log('ABI encoded auth:', encoded);
@@ -126,8 +141,8 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                     )}
                     {authorizationTuple && !isSubscribed ? (
                         <div onClick={handleEmailSent}>
-                            <SendAuthorizationEmailButton 
-                                authorizationTuple={authorizationTuple} 
+                            <SendAuthorizationEmailButton
+                                authorizationTuple={authorizationTuple}
                             />
                         </div>
                     ) : (

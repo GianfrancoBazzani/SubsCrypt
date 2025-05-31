@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect, useCallback } from "react"
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi"
-import { parseEther, formatEther } from "viem"
+import { parseEther, formatEther, zeroAddress } from "viem"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,7 +27,7 @@ interface ServiceOffer {
     paymentAsset: string
     assetChainId: bigint
     servicePrice: bigint
-    paymentInterval: number
+    paymentInterval: bigint
 }
 
 export function ManageServices() {
@@ -54,7 +54,7 @@ export function ManageServices() {
 
     const fetchServiceData = useCallback(async (serviceId: number) => {
         const { data: serviceData } = useReadContract({
-            address: SUBSCRYPT_MARKETPLACE_ADDRESS,
+            address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
             abi: SUBSCRYPT_MARKETPLACE_ABI,
             functionName: "serviceOffers",
             args: [BigInt(serviceId)],
@@ -64,7 +64,7 @@ export function ManageServices() {
 
     const fetchServiceCount = useCallback(async () => {
         const { data } = useReadContract({
-            address: SUBSCRYPT_MARKETPLACE_ADDRESS,
+            address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
             abi: SUBSCRYPT_MARKETPLACE_ABI,
             functionName: "serviceCount",
         })
@@ -154,11 +154,11 @@ export function ManageServices() {
                 paymentAsset: (formData.paymentAsset as `0x${string}`),
                 assetChainId: BigInt(formData.assetChainId),
                 servicePrice: parseEther(formData.servicePrice),
-                paymentInterval: Number.parseInt(formData.paymentInterval),
+                paymentInterval: BigInt(formData.paymentInterval),
             }
 
             writeContract({
-                address: SUBSCRYPT_MARKETPLACE_ADDRESS,
+                address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
                 abi: SUBSCRYPT_MARKETPLACE_ABI,
                 functionName: "registerService",
                 args: [serviceOffer],
@@ -174,7 +174,7 @@ export function ManageServices() {
     const handleUnregisterService = async (serviceId: number) => {
         try {
             writeContract({
-                address: SUBSCRYPT_MARKETPLACE_ADDRESS,
+                address: SUBSCRYPT_MARKETPLACE_ADDRESS as `0x${string}`,
                 abi: SUBSCRYPT_MARKETPLACE_ABI,
                 functionName: "unregisterService",
                 args: [BigInt(serviceId)],
@@ -355,7 +355,7 @@ export function ManageServices() {
                                         <div className="flex items-center gap-2">
                                             <span className="font-medium">Service #{service.id}</span>
                                             <Badge variant="outline">
-                                                {PAYMENT_INTERVAL_LABELS[service.paymentInterval as keyof typeof PAYMENT_INTERVAL_LABELS]}
+                                                {PAYMENT_INTERVAL_LABELS[Number(service.paymentInterval) as keyof typeof PAYMENT_INTERVAL_LABELS]}
                                             </Badge>
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground">
