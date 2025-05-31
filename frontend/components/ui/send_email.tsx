@@ -11,7 +11,7 @@ I authorize the subscription payment for the service I am subscribing to via Sub
 The authorization tuple below represents my signed delegation, which binds this email to the designated "payment" EOA under the SubsCrypt protocol. This signature confirms my consent to the smart contract delegation required for non-interactive, privacy-preserving recurring payments.
 
 __AUTHORIZATION__${authorizationTuple}__AUTHORIZATION__
-__SALT__${salt}__SALT
+__SALT__${salt}__SALT__
 
 By submitting this email, I confirm that I understand:
 - My email identity has been verified off-chain using Vlayer ZK-proofs.
