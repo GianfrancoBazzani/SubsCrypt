@@ -1,0 +1,175 @@
+{
+  "name": "SubsCrypt Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "additionalFields": {
+          "format": "raw"
+        }
+      },
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -120
+      ],
+      "id": "199186d1-fe37-43af-b423-6b6b5f6c55cd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JevEdOW07NM03MA3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -300,
+        -80
+      ],
+      "id": "eaf3ee18-3016-477f-96cf-945fe2de9e49",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JevEdOW07NM03MA3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const base64Data = $input.first().json.raw; // raw base64 email\n\n// We DON'T decode to UTF-8 here, we just repackage the raw base64\n// because .eml files are expected to be in base64 in the binary output\nreturn [\n  {\n    binary: {\n      data: {\n        data: base64Data, // still base64-encoded\n        fileName: 'email.eml',\n        mimeType: 'message/rfc822', // correct MIME type\n      },\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        360,
+        -80
+      ],
+      "id": "66cc5907-8d30-48e3-a61d-27d628fc6199",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/home/fer/Hackathon/SubsCrypt/automations/{{ $('Gmail').item.json.id }}.eml ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -80
+      ],
+      "id": "e6be66a8-b6a2-4fe6-841e-6f93848ad9cc",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "899dfe1a-d62e-4d0e-9026-27a273f68f45",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "Authorization for Subscription Payment – SubsCrypt",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        -80
+      ],
+      "id": "b0893fa1-3514-46ec-adfa-d07b02d0934a",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bfe97521-0b87-4c43-a23d-51ccae40d539",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d61353e1b1ea5510251619b0ecdb1801a00caa1d2fa22e060b178924ad211b1a"
+  },
+  "id": "G6EWUkpk1n36LrUt",
+  "tags": []
+}
