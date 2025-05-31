@@ -13,6 +13,64 @@ contract EmailDomainProver is Prover {
     using Strings for string;
     using EmailProofLib for UnverifiedEmail;
 
+    // Función para obtener el contenido entre __AUTHORIZATION__ delimitadores
+    function getAuthorizationContent(string memory input) public pure returns (string memory) {
+        bytes memory inputBytes = bytes(input);
+        bytes memory startDelimiter = bytes("__AUTHORIZATION__");
+        bytes memory endDelimiter = bytes("__AUTHORIZATION__");
+
+        uint256 startIdx = 0;
+        uint256 endIdx = 0;
+        bool foundStart = false;
+
+        // Buscar el primer delimitador __AUTHORIZATION__
+        for (uint256 i = 0; i < inputBytes.length - startDelimiter.length + 1; i++) {
+            bool matchStart = true;
+
+            for (uint256 j = 0; j < startDelimiter.length; j++) {
+                if (inputBytes[i + j] != startDelimiter[j]) {
+                    matchStart = false;
+                    break;
+                }
+            }
+
+            if (matchStart) {
+                startIdx = i + startDelimiter.length;
+                foundStart = true;
+                break;
+            }
+        }
+
+        // Si encontramos el inicio, buscar el segundo delimitador __AUTHORIZATION__
+        if (foundStart) {
+            for (uint256 i = startIdx; i < inputBytes.length - endDelimiter.length + 1; i++) {
+                bool matchEnd = true;
+
+                for (uint256 j = 0; j < endDelimiter.length; j++) {
+                    if (inputBytes[i + j] != endDelimiter[j]) {
+                        matchEnd = false;
+                        break;
+                    }
+                }
+
+                if (matchEnd) {
+                    endIdx = i;
+                    break;
+                }
+            }
+        }
+
+        // Si encontramos ambos delimitadores, extraemos el contenido entre ellos
+        require(startIdx < endIdx, "Delimitadores no encontrados correctamente");
+
+        bytes memory resultBytes = new bytes(endIdx - startIdx);
+        for (uint256 i = 0; i < resultBytes.length; i++) {
+            resultBytes[i] = inputBytes[startIdx + i];
+        }
+
+        return string(resultBytes);
+    }
+
     function stringToAddress(string memory str) public pure returns (address) {
         bytes memory strBytes = bytes(str);
         require(strBytes.length == 42, "Invalid address length");
@@ -45,26 +103,23 @@ contract EmailDomainProver is Prover {
     {
         VerifiedEmail memory email = unverifiedEmail.verify();
 
-        // extract for address
-        // email.body
-      
-        console.log(email.subject);
-
         // extract for service id
-        // string[] memory serviceID = email.subject.capture("^Authorization for Subscription Payment - SubsCrypt - serviceID: ([0-9]+)$");
-        // require(serviceID.length == 1, "no serviceID in subject");
-
-
+        string[] memory serviceID = email.subject.capture("^.*serviceID: ([0-9]+).*$");
+        require(serviceID.length >= 2, "no serviceID in subject");
+        console.log("serviceID: ", serviceID[1]);
         
         // string[] memory auth = email.body.capture("(?<=__AUTHORIZATION__)(.*?)(?=__AUTHORIZATION__)");
         // require(auth.length > 0, "no Auth founded");
         
+        //string[] memory auth = email.body.capture("^.*__AUTHORIZATION__(.*?)__AUTHORIZATION__.*$");
+        //require(auth.length >= 2, "no Auth found");
+        //console.log("Authorization: ", auth[1]);
 
-        authResult = "";
-
-
-      
+        string memory auth = getAuthorizationContent(email.body);
+        console.log("Authorization: ", auth);
         
+        authResult = auth;
+      
         // string[] memory captures = email.from.capture("^[\\w.-]+@([a-zA-Z\\d.-]+\\.[a-zA-Z]{2,})$");
         // require(captures.length == 2, "invalid email domain");
         // require(bytes(captures[1]).length > 0, "invalid email domain");

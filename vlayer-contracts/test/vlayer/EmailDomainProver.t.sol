@@ -33,7 +33,7 @@ contract EmailDomainProverTest is VTest {
         // callProver();
 
         (string memory auth) = prover.main(email);
-        // console.log(auth);
+        console.log(auth);
 
         // assertEq(emailHash, sha256(abi.encodePacked(verifiedEmail.from)));
         // assertEq(registeredWallet, johnDoe);
