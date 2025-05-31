@@ -16,9 +16,19 @@ import {
   encodeAbiParameters,
   parseAbiParameters,
   parseEther,
+  createWalletClient,
+  http,
+  concat,
+  toRlp,
+  toHex,
+  keccak256,
 } from "viem";
+import { mainnet } from "viem/chains";
+import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
+import { sepolia } from "viem/chains";
 
 const DEFAULT_EXECUTION_BOUNTY_PERCENTAGE = 5_000;
+const DUMMY_HASH = "0x1000000000000000000000000000000000000000000000000000000000000001";
 
 describe("SubsCrypt", function () {
   async function deploySubsCrypt() {
@@ -108,13 +118,10 @@ describe("SubsCrypt", function () {
       user,
     } = await loadFixture(deploySubsCrypt);
 
-    const serviceCountBefore = await subsCryptMarketplace.read.serviceCount();
+    const serviceCount = await subsCryptMarketplace.read.serviceCount();
 
-    expect(
-      await subsCryptMarketplace.read.isServiceAvailable([
-        serviceCountBefore + 1n,
-      ])
-    ).to.be.false;
+    expect(await subsCryptMarketplace.read.isServiceAvailable([serviceCount]))
+      .to.be.false;
 
     await subsCryptMarketplace.write.registerService(
       [
@@ -132,29 +139,20 @@ describe("SubsCrypt", function () {
       }
     );
 
-    expect(
-      await subsCryptMarketplace.read.isServiceAvailable([
-        serviceCountBefore + 1n,
-      ])
-    ).to.be.true;
+    expect(await subsCryptMarketplace.read.isServiceAvailable([serviceCount]))
+      .to.be.true;
 
     await expect(
-      subsCryptMarketplace.write.unregisterService([serviceCountBefore + 1n], {
+      subsCryptMarketplace.write.unregisterService([serviceCount], {
         account: user.account.address,
       })
     ).to.be.rejectedWith("UnauthorizedServiceProvider()");
 
-    await subsCryptMarketplace.write.unregisterService(
-      [serviceCountBefore + 1n],
-      {
-        account: serviceProvider.account.address,
-      }
-    );
-    expect(
-      await subsCryptMarketplace.read.isServiceAvailable([
-        serviceCountBefore + 1n,
-      ])
-    ).to.be.false;
+    await subsCryptMarketplace.write.unregisterService([serviceCount], {
+      account: serviceProvider.account.address,
+    });
+    expect(await subsCryptMarketplace.read.isServiceAvailable([serviceCount]))
+      .to.be.false;
   });
 
   it("Only verifier can initialize accounts", async function () {
@@ -163,9 +161,12 @@ describe("SubsCrypt", function () {
     );
 
     await expect(
-      subsCryptMarketplace.write.initializeAccount([1n, user.account.address], {
-        account: serviceProvider.account.address,
-      })
+      subsCryptMarketplace.write.initializeAccount(
+        [1n, user.account.address, DUMMY_HASH],
+        {
+          account: serviceProvider.account.address,
+        }
+      )
     ).to.be.rejectedWith("UnauthorizedVerifier()");
   });
 
@@ -175,9 +176,12 @@ describe("SubsCrypt", function () {
     );
 
     await expect(
-      subsCryptMarketplace.write.initializeAccount([1n, user.account.address], {
-        account: verifier.account.address,
-      })
+      subsCryptMarketplace.write.initializeAccount(
+        [1n, user.account.address, DUMMY_HASH],
+        {
+          account: verifier.account.address,
+        }
+      )
     ).to.be.rejectedWith("ServiceNotRegistered()");
 
     // TODO: Impersonate the verifier account
@@ -190,8 +194,8 @@ describe("SubsCrypt", function () {
       paymentRecipient,
       paymentAsset,
       verifier,
-      user,
       publicClient,
+      user,
     } = await loadFixture(deploySubsCrypt);
 
     await subsCryptMarketplace.write.registerService(
@@ -210,27 +214,114 @@ describe("SubsCrypt", function () {
       }
     );
 
-    const authorization = await user.signAuthorization({
-      account: user.account,
+    const privateKey = generatePrivateKey();
+    const burnerEOA = privateKeyToAccount(privateKey);
+    const walletClient = createWalletClient({
+      account: burnerEOA,
+      chain: mainnet,
+      transport: http(),
+    });
+    let authorization = await walletClient.signAuthorization({
+      account: burnerEOA,
       contractAddress:
         await subsCryptMarketplace.read.subsCryptSmartAccountDelegate(),
       chainId: 0,
+      nonce: 0,
     });
 
-    const hash = await user.sendTransaction({
+    await expect(
+      subsCryptMarketplace.write.initializeAccount(
+        [0n, burnerEOA.address, DUMMY_HASH],
+        {
+          account: verifier.account.address,
+        }
+      )
+    ).to.be.rejectedWith("AccountNotEIP7702Delegated()");
+
+    expect(await publicClient.getCode({ address: burnerEOA.address })).to.be
+      .undefined;
+
+    await user.sendTransaction({
+      authorizationList: [authorization],
+      data: "0xdeadbeef",
+      to: user.account.address,
+    });
+
+    expect(await publicClient.getCode({ address: burnerEOA.address })).not.to.be
+      .undefined;
+
+    await subsCryptMarketplace.write.initializeAccount(
+      [0n, burnerEOA.address, DUMMY_HASH],
+      {
+        account: verifier.account.address,
+      }
+    );
+
+    const burnerEOAContract = await hre.viem.getContractAt(
+      "SubsCryptSmartAccountDelegate",
+      burnerEOA.address
+    );
+    expect(await burnerEOAContract.read.marketplace()).to.be.equal(
+      getAddress(subsCryptMarketplace.address)
+    );
+    expect(await burnerEOAContract.read.paymentInterval()).to.be.equal(3600n);
+    expect(await burnerEOAContract.read.servicePrice()).to.be.equal(1000n);
+    expect(await burnerEOAContract.read.lastPullTimestamp()).to.be.equal(0n);
+  });
+
+  it("Payments can be triggered", async function () {
+    const {
+      subsCryptMarketplace,
+      serviceProvider,
+      paymentRecipient,
+      paymentAsset,
+      verifier,
+      publicClient,
+      user,
+    } = await loadFixture(deploySubsCrypt);
+
+    await subsCryptMarketplace.write.registerService(
+      [
+        {
+          serviceProvider: serviceProvider.account.address,
+          paymentRecipient: paymentRecipient.account.address,
+          paymentAsset: paymentAsset.account.address,
+          assetChainId: 1n,
+          servicePrice: 1000n,
+          paymentInterval: 3600n,
+        },
+      ],
+      {
+        account: serviceProvider.account.address,
+      }
+    );
+
+    const privateKey = generatePrivateKey();
+    const burnerEOA = privateKeyToAccount(privateKey);
+    const walletClient = createWalletClient({
+      account: burnerEOA,
+      chain: mainnet,
+      transport: http(),
+    });
+    let authorization = await walletClient.signAuthorization({
+      account: burnerEOA,
+      contractAddress:
+        await subsCryptMarketplace.read.subsCryptSmartAccountDelegate(),
+      chainId: 0,
+      nonce: 0,
+    });
+    await user.sendTransaction({
       authorizationList: [authorization],
       data: "0xdeadbeef",
       to: user.account.address,
     });
 
     await subsCryptMarketplace.write.initializeAccount(
-      [1n, user.account.address],
+      [0n, burnerEOA.address, DUMMY_HASH],
       {
         account: verifier.account.address,
       }
     );
-
-    // TODO: Impersonate the verifier account
   });
 
   describe("DUMMY", function () {

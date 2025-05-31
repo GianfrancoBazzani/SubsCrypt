@@ -35,6 +35,7 @@ contract SubsCryptMarketplace is Ownable {
     error InvalidPaymentRecipient();
     error ServiceFeeMustBeGreaterThanZero();
     error ServiceNotRegistered();
+    error AccountNotEIP7702Delegated();
 
     address public immutable verifier;
     address public immutable subsCryptSmartAccountDelegate;
@@ -78,8 +79,8 @@ contract SubsCryptMarketplace is Ownable {
             ServiceFeeMustBeGreaterThanZero()
         );
 
-        serviceCount++;
         serviceOffers[serviceCount] = serviceOffer;
+        serviceCount++;
 
         emit ServiceRegistered(
             serviceOffer.paymentRecipient,
@@ -105,28 +106,36 @@ contract SubsCryptMarketplace is Ownable {
     // Verifier functions
     function initializeAccount(
         uint256 Id,
-        address account
+        address account,
+        bytes32 emailHash
     ) external onlyVerifier {
         ServiceOffer storage serviceOffer = serviceOffers[Id];
         require(
             serviceOffer.paymentRecipient != address(0),
             ServiceNotRegistered()
         );
-
-
-        // TODO: Check if account is EIP-7702 delegated to subsCryptSmartAccountDelegate
-        emit AccountInitialized(
-            Id,
-            account
+        require(
+            keccak256(account.code) ==
+                keccak256(
+                    abi.encodePacked(
+                        hex'ef0100',
+                        subsCryptSmartAccountDelegate
+                    )
+                ),
+            AccountNotEIP7702Delegated()
         );
+
+        SubsCryptSmartAccountDelegate(account).initialize(emailHash, serviceOffer.paymentInterval, serviceOffer.servicePrice);
+        
+
+        emit AccountInitialized(Id, account);
     }
 
     // Payment trigger logic
     function batchExecutePayments() external {}
     function _executePayment() internal {
-        // Check if the service is available        
+        // Check if the service is available
         // TODO
-
         // account.pullFunds(accountAssetInBalance).
         // if assetChainId != this chainId , swap and bridge.
         // if paymentAsset != accountAssetInBalance swap.
