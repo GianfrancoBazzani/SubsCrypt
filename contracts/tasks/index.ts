@@ -9,10 +9,10 @@ task("deploy-subscrypt-smart-account-delegate").setAction(async (_args, hre) => 
   return subsCryptSmartAccountDelegateAddr;
 });
 
-task("deploy-subscrypt-entry-point").setAction(async (_args, hre) => {
-  const subsCryptEntryPoint = await hre.viem.deployContract("SubsCryptEntryPoint", []); // TODO Set constructor arguments if needed
-  const subsCryptEntryPointAddr = await subsCryptEntryPoint.address;
+task("deploy-subscrypt-marketplace").setAction(async (_args, hre) => {
+  const SubsCryptMarketplace = await hre.viem.deployContract("SubsCryptMarketplace", []); // TODO Set constructor arguments if needed
+  const SubsCryptMarketplaceAddr = await SubsCryptMarketplace.address;
  // TODO From here
-  console.log(`SubsCryptSmartAccountDelegate address: ${subsCryptEntryPointAddr}`);
-  return subsCryptEntryPointAddr;
+  console.log(`SubsCryptMarketplace address: ${SubsCryptMarketplaceAddr}`);
+  return SubsCryptMarketplaceAddr;
 });

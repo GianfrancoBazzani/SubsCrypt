@@ -18,24 +18,29 @@ import {
   parseEther,
 } from "viem";
 
+const DEFAULT_EXECUTION_BOUNTY_PERCENTAGE = 5_000;
+
 describe("SubsCrypt", function () {
   async function deploySubsCrypt() {
-    const SubsCryptEntryPoint = await hre.viem.deployContract(
-      "SubsCryptEntryPoint"
+    const [owner, serviceProvider, user] = await hre.viem.getWalletClients();
+    const subsCryptMarketplace = await hre.viem.deployContract(
+      "SubsCryptMarketplace",
+      [owner.account.address, DEFAULT_EXECUTION_BOUNTY_PERCENTAGE]
     );
-    const subsScryptSmartAccount = await hre.viem.deployContract(
-      "SubsCryptSmartAccountDelegate",
-      [SubsCryptEntryPoint.address]
-    );
+    // TODO: check proover deployment
+    // TODO: check user deployment delegation
+    //const subsScryptSmartAccount = await hre.viem.deployContract(
+    //  "SubsCryptSmartAccountDelegate",
+    //  [subsCryptMarketplace.address]
+    //);
 
     const publicClient = await hre.viem.getPublicClient();
-    const [relayer, user] = await hre.viem.getWalletClients();
 
     return {
-      SubsCryptEntryPoint,
-      subsScryptSmartAccount,
+      subsCryptMarketplace,
       publicClient,
-      relayer,
+      owner,
+      serviceProvider,
       user,
     };
   }
@@ -43,25 +48,33 @@ describe("SubsCrypt", function () {
   describe("Deployment", function () {
     it("SubsCrypt contracts should be deployed properly", async function () {
       const {
-        SubsCryptEntryPoint,
-        subsScryptSmartAccount,
+        subsCryptMarketplace,
+        //  subsScryptSmartAccount,
         publicClient,
-        relayer,
+        owner,
+        serviceProvider,
         user,
       } = await loadFixture(deploySubsCrypt);
 
-      console.log(
-        `SubsCryptEntryPoint deployed at: ${getAddress(
-          SubsCryptEntryPoint.address
-        )}`
-      );
-      console.log(
-        `SubsCryptSmartAccount deployed at: ${getAddress(
-          subsScryptSmartAccount.address
-        )}`
+      expect(await subsCryptMarketplace.read.owner()).to.be.equal(
+        getAddress(owner.account.address)
       );
       // TODO Assert deployment
     });
+  });
+
+  it("Service providers should be able to register a service", async function () {
+    const {
+      subsCryptMarketplace,
+      //  subsScryptSmartAccount,
+      publicClient,
+      owner,
+      serviceProvider,
+      user,
+    } = await loadFixture(deploySubsCrypt);
+
+     
+    // TODO Assert deployment
   });
 
   describe("DUMMY", function () {
