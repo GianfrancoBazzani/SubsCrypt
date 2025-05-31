@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { walletClient } from '@/lib/client'
 import { sepolia } from "viem/chains"
 import { encodeAbiParameters, parseAbiParameters, zeroAddress } from "viem"
+import SendAuthorizationEmailButton from "./send_email"
 
 interface SubscriptionModalProps {
     isOpen: boolean
@@ -16,8 +17,6 @@ interface SubscriptionModalProps {
 }
 
 export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
-    if (!isOpen) return null;
-
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isSubscribed, setIsSubscribed] = useState(() => {
@@ -27,6 +26,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
         }
         return false;
     });
+    const [authorizationTuple, setAuthorizationTuple] = useState<string>("");
 
     const client = walletClient();
     const authorization = async () => {
@@ -43,29 +43,38 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
         }
     }
 
-    const handleConfirmSubscription = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const auth = await authorization();
-            const encoded = encodeAbiParameters(
-                parseAbiParameters(
-                    'uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8 yParity'
-                ),
-                [BigInt(auth.chainId), auth.address, BigInt(auth.nonce), auth.r, auth.s, auth.yParity ?? 0]
-            );
-            // @todo send this authorization to your backend
-            console.log('Authorization successful:', auth);
-            console.log('ABI encoded auth:', encoded);
+    useEffect(() => {
+        const generateAuthorizationTuple = async () => {
+            if (!isOpen) return;
+            
+            setIsLoading(true);
+            setError(null);
+            try {
+                const auth = await authorization();
+                const encoded = encodeAbiParameters(
+                    parseAbiParameters(
+                        'uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8 yParity'
+                    ),
+                    [BigInt(auth.chainId), auth.address, BigInt(auth.nonce), auth.r, auth.s, auth.yParity ?? 0]
+                );
+                setAuthorizationTuple(encoded);
+                console.log('Authorization successful:', auth);
+                console.log('ABI encoded auth:', encoded);
+            } catch (err) {
+                setError('Failed to generate authorization. Please try again.');
+                console.error('Authorization generation error:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-            localStorage.setItem('subscribed', 'true');
-            setIsSubscribed(true);
-        } catch (err) {
-            setError('Failed to confirm subscription. Please try again.');
-            console.error('Subscription error:', err);
-        } finally {
-            setIsLoading(false);
-        }
+        generateAuthorizationTuple();
+    }, [isOpen]);
+
+    const handleEmailSent = () => {
+        localStorage.setItem('subscribed', 'true');
+        setIsSubscribed(true);
+        onClose();
     };
 
     // Handle click on the backdrop (outside the modal)
@@ -74,6 +83,8 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
             onClose();
         }
     }
+
+    if (!isOpen) return null;
 
     return (
         <div
@@ -113,13 +124,20 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                     {error && (
                         <p className="text-sm text-red-500 text-center">{error}</p>
                     )}
-                    <Button
-                        className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
-                        onClick={handleConfirmSubscription}
-                        disabled={isLoading || isSubscribed}
-                    >
-                        {isLoading ? "Confirming..." : isSubscribed ? "Already Subscribed" : "Confirm Subscription"}
-                    </Button>
+                    {authorizationTuple && !isSubscribed ? (
+                        <div onClick={handleEmailSent}>
+                            <SendAuthorizationEmailButton 
+                                authorizationTuple={authorizationTuple} 
+                            />
+                        </div>
+                    ) : (
+                        <Button
+                            className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+                            disabled={isLoading || isSubscribed}
+                        >
+                            {isLoading ? "Generating Authorization..." : isSubscribed ? "Already Subscribed" : "Preparing Subscription..."}
+                        </Button>
+                    )}
                     <p className="text-xs text-muted-foreground text-center">
                         By creating a subscription, you agree to the Terms of Service and Privacy Policy
                     </p>
