@@ -6,7 +6,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract SubsCryptMarketplace is Ownable {
     // Types
     enum PaymentInterval {
-        HURLY,
+        HOURLY,
         DAILY,
         WEEKLY,
         MONTHLY,
@@ -19,7 +19,7 @@ contract SubsCryptMarketplace is Ownable {
         address paymentRecipient;
         address paymentAsset;
         uint256 assetChainId;
-        uint256 serviceFee;
+        uint256 servicePrice; // in wei/hour
         PaymentInterval paymentInterval;
     }
 
@@ -27,7 +27,7 @@ contract SubsCryptMarketplace is Ownable {
     event ServiceRegistered(
         address indexed paymentRecipient,
         uint256 serviceId,
-        uint256 serviceFee, // in wei/hour
+        uint256 servicePrice, // in wei/hour
         PaymentInterval paymentInterval
     );
 
@@ -54,11 +54,13 @@ contract SubsCryptMarketplace is Ownable {
 
     constructor(
         address _owner,
-        uint256 _executionBountyPercentage
+        uint256 _executionBountyPercentage,
+        address _verifier
     ) Ownable(_owner) {
         executionBountyPercentage = _executionBountyPercentage;
+        verifier = _verifier;
+
         // TODO: Deploy SubsCryptSmartAccountDelegate
-        // TODO: Deploy Verifier
     }
 
     // Service provider marketplace functions
@@ -71,7 +73,10 @@ contract SubsCryptMarketplace is Ownable {
             serviceOffer.paymentRecipient != address(0),
             InvalidPaymentRecipient()
         );
-        require(serviceOffer.serviceFee > 0, ServiceFeeMustBeGreaterThanZero());
+        require(
+            serviceOffer.servicePrice > 0,
+            ServiceFeeMustBeGreaterThanZero()
+        );
 
         serviceCount++;
         serviceOffers[serviceCount] = serviceOffer;
@@ -79,7 +84,7 @@ contract SubsCryptMarketplace is Ownable {
         emit ServiceRegistered(
             serviceOffer.paymentRecipient,
             serviceCount,
-            serviceOffer.serviceFee,
+            serviceOffer.servicePrice,
             serviceOffer.paymentInterval
         );
     }
@@ -97,6 +102,19 @@ contract SubsCryptMarketplace is Ownable {
         delete serviceOffers[Id];
     }
 
+    // Verifier functions
+    function InitializeAccount(
+        uint256 Id,
+        address account
+    ) external onlyVerifier {
+        ServiceOffer storage serviceOffer = serviceOffers[Id];
+        require(
+            serviceOffer.paymentRecipient != address(0),
+            ServiceNotRegistered()
+        );
+        // TODO: Check if account is EIP-7702 delegated to subsCryptSmartAccountDelegate
+    }
+
     // Payment trigger logic
     function batchExecutePayments() external {}
     function _executePayment() internal {}
@@ -107,5 +125,9 @@ contract SubsCryptMarketplace is Ownable {
     }
 
     // Owner functions
-    function initializeSmartAccount() external onlyVerifier {}
+    function setExecutionBountyPercentage(
+        uint256 newPercentage
+    ) external onlyOwner {
+        executionBountyPercentage = newPercentage;
+    }
 }
