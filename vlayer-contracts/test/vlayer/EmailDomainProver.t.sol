@@ -30,10 +30,10 @@ contract EmailDomainProverTest is VTest {
         EmailDomainProver prover = new EmailDomainProver();
         UnverifiedEmail memory email = getTestEmail("testdata/nose.eml");
         VerifiedEmail memory verifiedEmail = wrapper.verify(email);
-        callProver();
+        // callProver();
 
         (string memory auth) = prover.main(email);
-        console.logString(auth);
+        // console.log(auth);
 
         // assertEq(emailHash, sha256(abi.encodePacked(verifiedEmail.from)));
         // assertEq(registeredWallet, johnDoe);

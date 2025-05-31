@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.23;
 
+import {console} from "forge-std/console.sol";
 import {Strings} from "@openzeppelin-contracts-5.0.1/utils/Strings.sol";
 import {Proof} from "vlayer-0.1.0/Proof.sol";
 import {Prover} from "vlayer-0.1.0/Prover.sol";
@@ -47,16 +48,22 @@ contract EmailDomainProver is Prover {
         // extract for address
         // email.body
       
+        console.log(email.subject);
 
         // extract for service id
-        string[] memory serviceID = email.subject.capture("^SubsCrypt - serviceID: ([0-9]{10})$");
-        require(serviceID.length == 1, "no serviceID in subject");
+        // string[] memory serviceID = email.subject.capture("^Authorization for Subscription Payment - SubsCrypt - serviceID: ([0-9]+)$");
+        // require(serviceID.length == 1, "no serviceID in subject");
+
+
         
-        string[] memory auth = email.body.capture("(?<=__AUTHORIZATION__)(.*?)(?=__AUTHORIZATION__)");
-        require(auth.length > 0, "no Auth founded");
+        // string[] memory auth = email.body.capture("(?<=__AUTHORIZATION__)(.*?)(?=__AUTHORIZATION__)");
+        // require(auth.length > 0, "no Auth founded");
         
 
-        authResult = auth[0];
+        authResult = "";
+
+
+      
         
         // string[] memory captures = email.from.capture("^[\\w.-]+@([a-zA-Z\\d.-]+\\.[a-zA-Z]{2,})$");
         // require(captures.length == 2, "invalid email domain");
