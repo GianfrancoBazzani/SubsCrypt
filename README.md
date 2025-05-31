@@ -53,6 +53,7 @@ Prover outputs:
 
 Email format:
 -  \_\_AUTHORIZATION\_\_\<Authorization Tuple\>\_\_AUTHORIZATION\_\_
+-  \_\_SALT\_\_\<Salt to add randomness to the email\>\_\_SALT\_\_
 
 ### MPC (For the future private family subscriptions)
 - [cb-mpc](https://github.com/coinbase/cb-mpc)
