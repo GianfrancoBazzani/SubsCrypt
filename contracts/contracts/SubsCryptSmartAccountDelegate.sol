@@ -84,4 +84,6 @@ contract SubsCryptSmartAccountDelegate {
         // Emit event funds pulled
         emit FundsPulled(block.timestamp, _amount);
     }
+
+    receive() external payable {}
 }
