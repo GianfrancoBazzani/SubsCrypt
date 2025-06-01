@@ -1,21 +1,20 @@
 
+
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
 import {EmailDomainProver} from "../src/vlayer/EmailDomainProver.sol";
-import {EmailProofVerifier} from "../src/vlayer/EmailProofVerifier.sol";
+import {IEmailProofVerifier} from "../src/vlayer/IEmailProofVerifier.sol";
 
 contract CounterScript is Script {
-    EmailProofVerifier public verifier;
-    EmailDomainProver public prover;
+    address contrato = address(0);
 
     function setUp() public {}
 
     function run() public {
         vm.startBroadcast();
-        prover = new EmailDomainProver();
-        verifier = new EmailProofVerifier(address(prover));
+        IEmailProofVerifier interf = IEmailProofVerifier(contrato);
         vm.stopBroadcast();
     }
 }
