@@ -12,8 +12,6 @@ import { encodeAbiParameters, parseAbiParameters, formatEther } from "viem"
 import { PAYMENT_INTERVAL_LABELS } from "@/lib/contract"
 import SendAuthorizationEmailButton from "@/components/ui/send_email"
 import { generatePrivateKey } from "viem/accounts"
-import { useServiceData } from "@/hooks/use-service-data"
-import { ETHER_ADDRESS } from "@/lib/constants"
 
 interface ServiceOffer {
     id: number
@@ -43,7 +41,6 @@ export function SubscriptionModal({ isOpen, onClose, service }: SubscriptionModa
     });
 
     const [authorizationTuple, setAuthorizationTuple] = useState<string>("");
-    const { services, isLoading: isLoadingServiceData, serviceCount, refresh } = useServiceData();
 
     const client = walletClient();
     const authorization = async () => {
@@ -70,9 +67,9 @@ export function SubscriptionModal({ isOpen, onClose, service }: SubscriptionModa
                 const auth = await authorization();
                 let encodedAuthorizationTuple = encodeAbiParameters(
                     parseAbiParameters(
-                        'uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8 yParity'
+                        'uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8, uint8 yParity'
                     ),
-                    [BigInt(auth.chainId), auth.address, BigInt(auth.nonce), auth.r, auth.s, auth.yParity ?? 0]
+                    [BigInt(auth.chainId), auth.address, BigInt(auth.nonce), auth.r, auth.s, Number(auth.v), auth.yParity ?? 0]
                 );
 
                 setAuthorizationTuple(encodedAuthorizationTuple);
