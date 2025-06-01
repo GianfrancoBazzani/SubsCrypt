@@ -10,7 +10,7 @@ contract CounterScript is Script {
     EmailProofVerifier public verifier;
     EmailDomainProver public prover;
 
-    address public marketplace = 0x541c016941542699be15db5e4fbb71445c62fd90;
+    address marketplace = 0x541C016941542699bE15db5E4fBb71445c62fD90;
 
 
     function setUp() public {}

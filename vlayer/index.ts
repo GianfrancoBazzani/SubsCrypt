@@ -1,5 +1,5 @@
 import { serve, env } from "bun";
-import { createVlayerClient, preverifyEmail } from "@vlayer/sdk";
+import { createVlayerClient, preverifyEmail } from "@vlayer/sdk/dist";
 import { hashAuthorization, recoverAuthorizationAddress } from 'viem/utils'
 import { decodeAbiParameters, parseAbiParameters, concat, recoverAddress, toHex } from 'viem'
 import { client, account } from "./client";
@@ -18,39 +18,39 @@ if (!env.VLAYER_API_TOKEN) {
 const vlayer = createVlayerClient();
 
 function cleanString(input) {
-    // Reemplaza todos los ocurrencias de '=\r\n' con una cadena vacía
-    return input.replace(/=\r\n/g, '');
+  // Reemplaza todos los ocurrencias de '=\r\n' con una cadena vacía
+  return input.replace(/=\r\n/g, '');
 }
 
 function parseAuthorizationContent(input: string, delimeter: string): `0x{string}`[] {
-    
-    const startDelimiter = delimeter;
-    const endDelimiter = delimeter;
-    
-    // const startDelimiter = '__AUTHORIZATION__';
-    // const endDelimiter = '__AUTHORIZATION__';
 
-    let startIdx = 0;
-    let results = [];
+  const startDelimiter = delimeter;
+  const endDelimiter = delimeter;
 
-    while (startIdx < input.length) {
-        let start = input.indexOf(startDelimiter, startIdx);
-        if (start === -1) break; // Si no se encuentra el inicio, terminamos.
+  // const startDelimiter = '__AUTHORIZATION__';
+  // const endDelimiter = '__AUTHORIZATION__';
 
-        let end = input.indexOf(endDelimiter, start + startDelimiter.length);
-        if (end === -1) break; // Si no se encuentra el fin, terminamos.
+  let startIdx = 0;
+  let results = [];
 
-        let content = input.substring(start + startDelimiter.length, end);
-        results.push(cleanString(content));
+  while (startIdx < input.length) {
+    let start = input.indexOf(startDelimiter, startIdx);
+    if (start === -1) break; // Si no se encuentra el inicio, terminamos.
 
-        startIdx = end + endDelimiter.length;
-    }
+    let end = input.indexOf(endDelimiter, start + startDelimiter.length);
+    if (end === -1) break; // Si no se encuentra el fin, terminamos.
 
-    if (results.length === 0) {
-        throw new Error("No match was found");
-    }
+    let content = input.substring(start + startDelimiter.length, end);
+    results.push(cleanString(content));
 
-    return results; // Devuelve todos los contenidos entre los delimitadores
+    startIdx = end + endDelimiter.length;
+  }
+
+  if (results.length === 0) {
+    throw new Error("No match was found");
+  }
+
+  return results; // Devuelve todos los contenidos entre los delimitadores
 }
 
 
@@ -68,7 +68,7 @@ serve({
         const fileName = file.name;
         const fileExtension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
 
-        if (fileExtension !== "eml") {} else {
+        if (fileExtension !== "eml") { } else {
           return new Response("File not supported", { status: 400 });
         }
 
@@ -100,22 +100,22 @@ serve({
           const content = parseAuthorizationContent(unverifiedEmail.email.toString(), '__AUTHORIZATION__')[0];
           const salt = parseAuthorizationContent(unverifiedEmail.email.toString(), '__SALT__')[0].replace("__SALT__", '');
 
-          
+
 
 
           // bytes32 hash, bytes32 r, bytes32 s, uint8 yParity, bytes32 salt
-          
+
           // console.log(string);
           // console.log(content);
 
-            // [
-            //   { name: "chainId", type: "uint" },
-            //   { name: "contract", type: "address" },
-            //   { name: "nonce", type: "uint" },
-            //   { name: "r", type: "bytes" },
-            //   { name: "s", type: "bytes" },
-            //   { name: "yParity", type: "uint8" },
-            // ],
+          // [
+          //   { name: "chainId", type: "uint" },
+          //   { name: "contract", type: "address" },
+          //   { name: "nonce", type: "uint" },
+          //   { name: "r", type: "bytes" },
+          //   { name: "s", type: "bytes" },
+          //   { name: "yParity", type: "uint8" },
+          // ],
 
           const values = decodeAbiParameters(
             parseAbiParameters("uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8 v, uint8 yParity"),
@@ -140,7 +140,7 @@ serve({
           console.log("chainId: ", chainId);
           console.log("nonce: ", nonce);
           console.log("yParity: ", yParity);
-          
+
           console.log("r: ", r);
           console.log("s: ", s);
           console.log("v: ", v);
@@ -158,29 +158,36 @@ serve({
             signature: signature
           })
 
-
-
-
           // console.log(address)
 
-          // const hashFromProver = await vlayer.prove({
-          //   address: constants.prover.address,
-          //   proverAbi: constants.prover.abi,
-          //   functionName: constants.prover.function,
-          //   args: [unverifiedEmail, hash, r, s, v, yParity, salt],
-          //   chainId: constants.chainId,
-          // });
+          let hashFromProver;
 
-          // const result = await vlayer.waitForProvingResult({ hashFromProver });
-          
-          // const verificationHash = await ethClient.writeContract({
-          //   address: verifier,
-          //   abi: verifierSpec.abi,
-          //   functionName: "verify",
-          //   args: result,
-          //   account: john,
-          // });
-          
+          try {
+            hashFromProver = await vlayer.prove({
+              address: constants.prover.address,
+              proverAbi: constants.prover.abi,
+              functionName: constants.prover.function,
+              args: [unverifiedEmail, hash, r, s, v, yParity, salt],
+              chainId: constants.chainId,
+            });
+
+
+          } catch (err) {
+            return new Response(`Error calling prover: ${err}`, { status: 405 });
+          }
+
+          const result = await vlayer.waitForProvingResult({ hashFromProver });
+
+          const verificationHash = await client.writeContract({
+            address: constants.verifier.address,
+            abi: constants.verifier.abi,
+            functionName: "verify",
+            args: result,
+            account: account,
+          });
+
+          console.log(verificationHash);
+
           return new Response("Everything is fine.", { status: 200 });
 
         } catch (error) {

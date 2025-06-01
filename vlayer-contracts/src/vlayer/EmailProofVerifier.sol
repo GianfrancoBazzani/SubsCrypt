@@ -13,7 +13,7 @@ contract EmailProofVerifier is Verifier {
 
     mapping(bytes32 => bool) public takenEmailHashes;
 
-    constructor(address _prover) {
+    constructor(address _prover, address _subscrypt) {
         prover = _prover;
         subscrypt = ISubscrypt(_subscrypt);
     }
