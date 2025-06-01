@@ -397,16 +397,6 @@ describe("SubsCrypt", function () {
 
     time.increase(1000n);
 
-    const burnerEOABalanceBefore1 = await publicClient.getBalance({
-      address: burnerEOA.address,
-    });
-    const botBalanceBefore1 = await publicClient.getBalance({
-      address: bot.account.address,
-    });
-    const recipientBalanceBefore1 = await publicClient.getBalance({
-      address: paymentRecipient.account.address,
-    });
-
     await subsCryptMarketplace.write.batchExecutePayments(
       [
         [

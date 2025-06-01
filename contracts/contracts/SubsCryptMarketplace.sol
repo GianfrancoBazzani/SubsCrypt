@@ -132,7 +132,7 @@ contract SubsCryptMarketplace is Ownable {
             AccountNotEIP7702Delegated()
         );
 
-        SubsCryptSmartAccountDelegate(account).initialize(
+        SubsCryptSmartAccountDelegate(payable(account)).initialize(
             emailHash,
             serviceOffer.paymentInterval,
             serviceOffer.servicePrice
@@ -172,7 +172,7 @@ contract SubsCryptMarketplace is Ownable {
             );
         }
 
-        SubsCryptSmartAccountDelegate(params.account).pullFunds(
+        SubsCryptSmartAccountDelegate(payable(params.account)).pullFunds(
             params.assetAddress,
             serviceOffer.paymentAsset,
             serviceOffer.assetChainId
