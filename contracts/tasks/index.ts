@@ -1,18 +1,36 @@
 import { task } from "hardhat/config";
 import { hexToString, toHex, parseAbiParameters } from "viem";
 
-task("deploy-subscrypt-smart-account-delegate").setAction(async (_args, hre) => {
-  const subsCryptSmartAccountDelegate = await hre.viem.deployContract("SubsCryptSmartAccountDelegate", []); // TODO Set constructor arguments if needed
-  const subsCryptSmartAccountDelegateAddr = await subsCryptSmartAccountDelegate.address;
- // TODO From here
-  console.log(`SubsCryptSmartAccountDelegate address: ${subsCryptSmartAccountDelegateAddr}`);
-  return subsCryptSmartAccountDelegateAddr;
-});
+task("deploy-subscrypt-smart-account-delegate").setAction(
+  async (_args, hre) => {
+    const subsCryptSmartAccountDelegate = await hre.viem.deployContract(
+      "SubsCryptSmartAccountDelegate",
+      []
+    ); // TODO Set constructor arguments if needed
+    const subsCryptSmartAccountDelegateAddr =
+      await subsCryptSmartAccountDelegate.address;
 
-task("deploy-subscrypt-entry-point").setAction(async (_args, hre) => {
-  const subsCryptEntryPoint = await hre.viem.deployContract("SubsCryptEntryPoint", []); // TODO Set constructor arguments if needed
-  const subsCryptEntryPointAddr = await subsCryptEntryPoint.address;
- // TODO From here
-  console.log(`SubsCryptSmartAccountDelegate address: ${subsCryptEntryPointAddr}`);
-  return subsCryptEntryPointAddr;
+    console.log(
+      `SubsCryptSmartAccountDelegate address: ${subsCryptSmartAccountDelegateAddr}`
+    );
+    return subsCryptSmartAccountDelegateAddr;
+  }
+);
+
+task("deploy-subscrypt-marketplace").setAction(async (_args, hre) => {
+  const ownerAddress = "0x2dd6b5d872047976E3f7938a748fc48f9D6b9520";
+  const executionBountyPercentage = 5000; // 5%
+  const verifierAddress = "0x2dd6b5d872047976E3f7938a748fc48f9D6b9520"; // Replace with actual verifier address
+
+  const subsCryptMarketplace = await hre.viem.deployContract(
+    "SubsCryptMarketplace",
+    [ownerAddress, executionBountyPercentage, verifierAddress]
+  );
+  const subsCryptMarketplaceAddr = await subsCryptMarketplace.address;
+
+  console.log(`SubsCryptMarketplace address: ${subsCryptMarketplaceAddr}`);
+  console.log(
+    `SubsCryptSmartAccountDelegate address: ${await subsCryptMarketplace.read.subsCryptSmartAccountDelegate()}`
+  );
+  return subsCryptMarketplaceAddr;
 });

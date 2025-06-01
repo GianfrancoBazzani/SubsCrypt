@@ -4,7 +4,7 @@ import "@nomicfoundation/hardhat-toolbox-viem";
 import "./tasks";
 
 const accounts = {
-  mnemonic: `${process.env.RELAYER}`,
+  mnemonic: `${process.env.OWNER}`,
   path: "m/44'/60'/0'/0",
   initialIndex: 0,
   count: 20,
