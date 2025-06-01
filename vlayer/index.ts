@@ -1,5 +1,5 @@
 import { serve, env } from "bun";
-import { createVlayerClient, preverifyEmail } from "@vlayer/sdk/dist";
+import { createVlayerClient, preverifyEmail} from "@vlayer/sdk";
 import { hashAuthorization, recoverAuthorizationAddress } from 'viem/utils'
 import { decodeAbiParameters, parseAbiParameters, concat, recoverAddress, toHex } from 'viem'
 import { client, account } from "./client";
@@ -15,7 +15,10 @@ if (!env.VLAYER_API_TOKEN) {
   throw new Error("No VLAYER_API_TOKEN was not set");
 }
 
-const vlayer = createVlayerClient();
+const vlayer = createVlayerClient({
+  url: env.PROVER_URL,
+  token: env.VLAYER_API_TOKEN,
+});
 
 function cleanString(input) {
   // Reemplaza todos los ocurrencias de '=\r\n' con una cadena vacía
@@ -88,6 +91,8 @@ serve({
           const email = fileBuffer.toString('utf-8');
 
 
+          console.log(1);
+
 
           const unverifiedEmail = await preverifyEmail({
             mimeEmail: email,
@@ -101,8 +106,7 @@ serve({
           const salt = parseAuthorizationContent(unverifiedEmail.email.toString(), '__SALT__')[0].replace("__SALT__", '');
 
 
-
-
+          console.log(2);
           // bytes32 hash, bytes32 r, bytes32 s, uint8 yParity, bytes32 salt
 
           // console.log(string);
@@ -122,6 +126,7 @@ serve({
             content
           )
 
+          console.log(3);
           const chainId = values.at(0);
           const contractAdress = values.at(1);
           const nonce = values.at(2);
@@ -149,6 +154,7 @@ serve({
           console.log("salt: ", salt);
           console.log("\n")
 
+          console.log(4);
 
           const signature = concat([r, s, toHex(v)]);
           console.log(signature)
@@ -158,17 +164,20 @@ serve({
             signature: signature
           })
 
+          console.log(5);
           // console.log(address)
 
           let hashFromProver;
 
           try {
+
             hashFromProver = await vlayer.prove({
               address: constants.prover.address,
               proverAbi: constants.prover.abi,
               functionName: constants.prover.function,
               args: [unverifiedEmail, hash, r, s, v, yParity, salt],
               chainId: constants.chainId,
+              gasLimit: 10000000,
             });
 
 
@@ -176,7 +185,17 @@ serve({
             return new Response(`Error calling prover: ${err}`, { status: 405 });
           }
 
-          const result = await vlayer.waitForProvingResult({ hashFromProver });
+
+          console.log(hashFromProver);
+          const result = await vlayer.waitForProvingResult({ hash: hashFromProver });
+          
+
+          console.log("\n\n")
+          console.log("result: ", result);
+          console.log("\n\n")
+          console.log(6);
+
+          try {
 
           const verificationHash = await client.writeContract({
             address: constants.verifier.address,
@@ -186,7 +205,12 @@ serve({
             account: account,
           });
 
+
           console.log(verificationHash);
+
+          } catch(err) {
+            return new Response(`Error calling verifier: ${err}`, { status: 405 });
+          }
 
           return new Response("Everything is fine.", { status: 200 });
 

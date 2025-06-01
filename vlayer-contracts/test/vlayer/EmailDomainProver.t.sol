@@ -8,6 +8,7 @@ import {console} from "forge-std/console.sol";
 import {UnverifiedEmail, EmailProofLib, VerifiedEmail} from "vlayer-0.1.0/EmailProof.sol";
 
 import {EmailDomainProver} from "../../src/vlayer/EmailDomainProver.sol";
+import {EmailProofVerifier} from "../../src/vlayer/EmailProofVerifier.sol";
 
 contract EmailProofLibWrapper {
     using EmailProofLib for UnverifiedEmail;
@@ -37,7 +38,17 @@ contract EmailDomainProverTest is VTest {
         uint8 v = 28;
         bytes32 salt = 0xeffb808d753cab648a810be7767e53bd068af1e4794820eb1fc24b7a72035cd5;
 
-        (, uint serviceId, bytes32 hashEmail, address signer) = prover.main(email, hash, r, s, v, 1, salt);
+        (Proof memory proof, uint serviceId, bytes32 hashEmail, address signer) = 
+          prover.main(email, hash, r, s, v, 1, salt);
+
+
+        address marketplace = 0x541C016941542699bE15db5E4fBb71445c62fD90;
+
+        EmailProofVerifier emailProofVerifier = new EmailProofVerifier(address(prover), marketplace);
+
+        emailProofVerifier.verify(proof, serviceId, hashEmail, signer);
+
+      
         // console.log(auth);
 
         console.log(serviceId);
