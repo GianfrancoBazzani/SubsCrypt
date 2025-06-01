@@ -1,6 +1,8 @@
 # SubsCrypt - Anonymous On-Chain Subscription Payments
 > ETH Global Prague 2025 hackathon project
 
+<img src="/frontend/public/SubsCrypt%20bg.png" alt="SubsCrypt logo" width="200" />
+
 ## Introduction
 SubsCrypt is an innovative platform that leverages EIP-7702 and Vlayer ZK-proofs to create an on-chain private subscription payment marketplace.
 
