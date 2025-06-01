@@ -345,6 +345,8 @@ describe("SubsCrypt", function () {
             account: burnerEOA.address,
             assetAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             feeReceiverAddress: bot.account.address,
+            swapAmount: 0n,
+            pools: [],
           },
         ],
       ],
@@ -386,6 +388,8 @@ describe("SubsCrypt", function () {
               account: burnerEOA.address,
               assetAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
               feeReceiverAddress: bot.account.address,
+              swapAmount: 0n,
+              pools: [],
             },
           ],
         ],
@@ -404,6 +408,8 @@ describe("SubsCrypt", function () {
             account: burnerEOA.address,
             assetAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             feeReceiverAddress: bot.account.address,
+            swapAmount: 0n,
+            pools: [],
           },
         ],
       ],
@@ -411,7 +417,6 @@ describe("SubsCrypt", function () {
         account: bot.account.address,
       }
     );
-
   });
 
   describe("DUMMY", function () {
