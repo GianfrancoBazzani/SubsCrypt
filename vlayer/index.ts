@@ -158,9 +158,10 @@ serve({
             signature: signature
           })
 
+
+
+
           // console.log(address)
-
-
 
           // const hashFromProver = await vlayer.prove({
           //   address: constants.prover.address,
@@ -168,6 +169,16 @@ serve({
           //   functionName: constants.prover.function,
           //   args: [unverifiedEmail, hash, r, s, v, yParity, salt],
           //   chainId: constants.chainId,
+          // });
+
+          // const result = await vlayer.waitForProvingResult({ hashFromProver });
+          
+          // const verificationHash = await ethClient.writeContract({
+          //   address: verifier,
+          //   abi: verifierSpec.abi,
+          //   functionName: "verify",
+          //   args: result,
+          //   account: john,
           // });
           
           return new Response("Everything is fine.", { status: 200 });

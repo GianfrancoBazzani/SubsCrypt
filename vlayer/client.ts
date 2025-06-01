@@ -1,16 +1,18 @@
 import { env } from 'bun'
-import { createPublicClient, http } from 'viem'
+import { mnemonicToAccount, createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
 
- 
-export const client = createPublicClient({ 
+
+if (!env.MEMONIC_SEPOLIA) {
+  throw new Error("No private key was specified")
+}
+
+const account = mnemonicToAccount(env.MEMONIC_SEPOLIA);
+
+export const client = createWalletClient({
+  account: account,
   chain: sepolia, 
-  transport: http(), 
+  transport: http(),
 }) 
 
-// if (!env.PRIVATE_KEY_SEPOLIA) {
-//   throw new Error("No private key was specified")
-// }
-//
-// export const account = privateKeyToAccount(`0x${env.PRIVATE_KEY_SEPOLIA}`)
