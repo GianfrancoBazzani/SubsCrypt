@@ -1,7 +1,7 @@
 import { serve, env } from "bun";
 import { createVlayerClient, preverifyEmail } from "@vlayer/sdk";
-import { hashAuthorization } from 'viem/utils'
-import { decodeAbiParameters, parseAbiParameters } from 'viem'
+import { hashAuthorization, recoverAuthorizationAddress } from 'viem/utils'
+import { decodeAbiParameters, parseAbiParameters, concat, recoverAddress, toHex } from 'viem'
 import { client, account } from "./client";
 
 // import { createVlayerClient, preverifyEmail } from "@vlayer/sdk/dist";
@@ -118,7 +118,7 @@ serve({
             // ],
 
           const values = decodeAbiParameters(
-            parseAbiParameters("uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8 yParity"),
+            parseAbiParameters("uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8 v, uint8 yParity"),
             content
           )
 
@@ -127,7 +127,8 @@ serve({
           const nonce = values.at(2);
           const r = values.at(3);
           const s = values.at(4);
-          const yParity = values.at(5);
+          const v = values.at(5);
+          const yParity = values.at(6);
 
           const hash = hashAuthorization({
             contractAddress: contractAdress,
@@ -135,22 +136,37 @@ serve({
             nonce: nonce,
           });
 
-          // console.log("contract: ", contractAdress);
-          // console.log("chainId: ", chainId);
-          // console.log("nonce: ", nonce);
-          // console.log("yParity: ", yParity);
-          // console.log("r: ", r);
-          // console.log("s: ", s);
+          console.log("contract: ", contractAdress);
+          console.log("chainId: ", chainId);
+          console.log("nonce: ", nonce);
+          console.log("yParity: ", yParity);
+          
+          console.log("r: ", r);
+          console.log("s: ", s);
+          console.log("v: ", v);
+
           console.log("hash: ", hash);
           console.log("salt: ", salt);
           console.log("\n")
+
+
+          const signature = concat([r, s, toHex(v)]);
+          console.log(signature)
+
+          const address = await recoverAddress({
+            hash: hash,
+            signature: signature
+          })
+
+          // console.log(address)
+
 
 
           // const hashFromProver = await vlayer.prove({
           //   address: constants.prover.address,
           //   proverAbi: constants.prover.abi,
           //   functionName: constants.prover.function,
-          //   args: [unverifiedEmail, hash, r, s, yParity, salt],
+          //   args: [unverifiedEmail, hash, r, s, v, yParity, salt],
           //   chainId: constants.chainId,
           // });
           

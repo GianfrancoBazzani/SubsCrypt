@@ -58,7 +58,7 @@ contract EmailDomainProver is Prover {
         return result;
     }
 
-    function main(UnverifiedEmail calldata unverifiedEmail, bytes32 hash, bytes32 r, bytes32 s, uint8 yParity, bytes32 salt)
+    function main(UnverifiedEmail calldata unverifiedEmail, bytes32 hash, bytes32 r, bytes32 s, uint8 v, uint8 yParity, bytes32 salt)
         public
         // view
         // returns (string memory authResult)
@@ -71,7 +71,7 @@ contract EmailDomainProver is Prover {
         require(serviceID.length >= 2, "no serviceID in subject");
         console.log("serviceID: ", serviceID[1]);
         
-        (address signer, , ) = ECDSA.tryRecover(hash, yParity, r, s);
+        (address signer, , ) = ECDSA.tryRecover(hash, v, r, s);
         require(signer != address(0), "invalid address");
 
         console.log("signer: ");
