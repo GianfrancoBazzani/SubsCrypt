@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
 import { walletClient } from '@/lib/client'
 import { sepolia } from "viem/chains"
 import { encodeAbiParameters, parseAbiParameters } from "viem"
@@ -43,7 +41,7 @@ export function SubscriptionForm({ serviceId, onClose }: SubscriptionFormProps) 
             setError(null)
             try {
                 const auth = await authorization()
-                let encodedAuthorizationTuple = encodeAbiParameters(
+                const encodedAuthorizationTuple = encodeAbiParameters(
                     parseAbiParameters(
                         'uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8 yParity'
                     ),

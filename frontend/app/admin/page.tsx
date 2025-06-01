@@ -1,6 +1,6 @@
 "use client"
 
-import { useAccount, useDisconnect } from "wagmi"
+import { useAccount } from "wagmi"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { AdminDashboard } from "@/components/admin/admin-dashboard"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
