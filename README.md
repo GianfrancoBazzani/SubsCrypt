@@ -32,9 +32,8 @@ The service provider can pull the funds whenever he wants since we implement a s
 ### Auto-executable Payments with fee-incentivized triggers
 In order to incentivize the execution of the payments semi-automatically, a fee auction is implemented to incentivize anyone to pay for the gas of payment triggering transactions, obtaining a fee percentage in exchange.
 
-### Multi-currency and Multi-chain Payments with 1inch Fusion+
-The service provider is free to trigger a bridge and/or swap atomically when pulling funds from the EOA with built-in integration with **1inch Fusion+**.
-
+### Multi-Currency Payments via Atomic 1 Inch Unoswap
+We leverage atomic 1 Inch Unoswap swaps so users can pay in their preferred currency. The swap executes securely in a single transaction, converting the funds seamlessly.
 
 ## App Flow
 
