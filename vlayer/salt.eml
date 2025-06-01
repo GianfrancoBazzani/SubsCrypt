@@ -1,0 +1,111 @@
+Delivered-To: gordi2015ferrai@gmail.com
+Received: by 2002:a17:522:3792:b0:603:3cbd:9c67 with SMTP id u18csp1948521pvi;
+        Sat, 31 May 2025 17:20:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEMC5f1QEh089ojhIla0ITsVrWSjGOpBWLbYou99hXuf+WBYc4l5ATHRkAYxOhDwgA7WjTv
+X-Received: by 2002:a05:622a:5a19:b0:471:b8dd:6411 with SMTP id d75a77b69052e-4a4aed36d92mr52460991cf.47.1748737216628;
+        Sat, 31 May 2025 17:20:16 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1748737216; cv=none;
+        d=google.com; s=arc-20240605;
+        b=iSrkgTq70f9MkBRZJq33P1qX7kUqmhv6iFtDu9kMa1z6JjajQTYclZGMbqomiYJFbg
+         RNM3RRl21tKSZwELFkWjULXCZHmZt/FL2rJReUOgda4v9vrd2IoJn4yh64CAYqoYzdle
+         bWH5vIlVLgMjwL7ABe+PSEYsvmWIOZUdmctyt5QB8bqEFo02j1oRLEsAw5MZvJrSDTHq
+         uEqYZtH2o2euQ4HncMJ+LoUH8+GUYWxZZQCQth0N9YfAxGWuXn+ATBjiupUSjyk830yX
+         65KFb66YM1+idUNj8I3SSic5UR5Xms+Pbu2sR34FBocPtZTrOyF4JJknLVDxbfRFIjCP
+         ecIg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:date:message-id:subject:mime-version:content-transfer-encoding
+         :from:dkim-signature;
+        bh=XNvmQntExYQ7Nz0ucaSymxhKOYatSG8+WcbOGJUuUqg=;
+        fh=XMsS1Kxpc/gMb26S4p8c93zrmMrLDmV4Pg4fJD+4Q4s=;
+        b=NMhELii8RtGJBo8QX6btTiUq1C0hpKE1AnOvLAz1Q1ClAaYnMtBFA3dPrxOu119xqe
+         gBoyM5oSyA0LvT7hZiyFfhqPHijiw3rEzdctbq0ur9t9u1mt0HJK2ahtr+uuHfolvnlq
+         eQvEFFQWT6qoxr0jFz6LhwlgpNW72/mnaNC63AhUupAxH7ToG6EP8xzLaHgWHlMJgNKd
+         O8XJ4Eqa/ckqcJ3MeE1zbHXtpiSHd5FKE+GTOYml39mApgRSZXqnMUWtjAT0MVGp2UUy
+         GeGcLA1goKDERab0Lc+K4/ErPXznco3nqLm7TekPFR8NMwlANe81gPFQD8h9fj9rQ8Aj
+         02Xw==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@icloud.com header.s=1a1hai header.b=w2g65S3s;
+       spf=pass (google.com: domain of jonasmerhej@icloud.com designates 57.103.84.89 as permitted sender) smtp.mailfrom=jonasmerhej@icloud.com;
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=icloud.com
+Return-Path: <jonasmerhej@icloud.com>
+Received: from outbound.qs.icloud.com (p-east3-cluster4-host9-snip4-6.eps.apple.com. [57.103.84.89])
+        by mx.google.com with ESMTPS id d75a77b69052e-4a435a23f60si69437431cf.376.2025.05.31.17.20.16
+        for <gordi2015ferrai@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 31 May 2025 17:20:16 -0700 (PDT)
+Received-SPF: pass (google.com: domain of jonasmerhej@icloud.com designates 57.103.84.89 as permitted sender) client-ip=57.103.84.89;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@icloud.com header.s=1a1hai header.b=w2g65S3s;
+       spf=pass (google.com: domain of jonasmerhej@icloud.com designates 57.103.84.89 as permitted sender) smtp.mailfrom=jonasmerhej@icloud.com;
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=icloud.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=icloud.com;
+	s=1a1hai; bh=XNvmQntExYQ7Nz0ucaSymxhKOYatSG8+WcbOGJUuUqg=;
+	h=From:Content-Type:Mime-Version:Subject:Message-Id:Date:To:x-icloud-hme;
+	b=w2g65S3sHDYBqhNErUnPPZeXMiY1NmGkMlP14VBw3rvhYkg1Cg9rLfPlpZuGRORXJ
+	 D+pzIbyne2mZLgSI2A5k1jU6Tp7dxp/L3EGFEfSoxAkujss9bEkr7Lf/VSmeyMqKhg
+	 i/fA00tOD5PEw5vzJJt+wEebKAJ+lnFsWWMpb47cthP1vjQbTCT5ZdHtEjhZ79eyK6
+	 5I/DAGh2VgPMESSZqm7m0I3UUf5VeKjed5AypvnKyMn/JAIkVidKUXNN9TY0g8FdfF
+	 FB8I8M4xrsNa7uJHqBPoZx9S7UXH9MZgsleDETEwp5xQ3Ajos30T0o97AL06Hqpvy5
+	 OA4YthggX4pog==
+Received: from outbound.qs.icloud.com (localhost [127.0.0.1])
+	by outbound.qs.icloud.com (Postfix) with ESMTPS id 0BBF01800238
+	for <gordi2015ferrai@gmail.com>; Sun,  1 Jun 2025 00:20:14 +0000 (UTC)
+Received: from smtpclient.apple (qs-asmtp-me-k8s.p00.prod.me.com [17.57.155.37])
+	by outbound.qs.icloud.com (Postfix) with ESMTPSA id 296F0180022E
+	for <gordi2015ferrai@gmail.com>; Sun,  1 Jun 2025 00:20:14 +0000 (UTC)
+From: jonasmerhej@icloud.com
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.600.51.1.1\))
+Subject: =?utf-8?Q?Authorization_for_Subscription_Payment_=E2=80=93_SubsCr?=
+ =?utf-8?Q?ypt_-_serviceID=3A_3?=
+Message-Id: <B63A20D4-D4E9-4F94-BB18-911F507C9AAE@icloud.com>
+Date: Sun, 1 Jun 2025 02:20:02 +0200
+To: gordi2015ferrai@gmail.com
+X-Mailer: Apple Mail (2.3826.600.51.1.1)
+X-Proofpoint-GUID: A4V3RT3zWGjUsaS6nrY1WSas049wPXm6
+X-Proofpoint-ORIG-GUID: A4V3RT3zWGjUsaS6nrY1WSas049wPXm6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-31_12,2025-05-30_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0
+ spamscore=0 bulkscore=0 mlxlogscore=857 suspectscore=0 adultscore=0
+ clxscore=1011 malwarescore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.22.0-2503310001 definitions=main-2506010001
+
+Hello,
+
+I authorize the subscription payment for the service I am subscribing to =
+via SubsCrypt.
+
+The authorization tuple below represents my signed delegation, which =
+binds this email to the designated "payment" EOA under the SubsCrypt =
+protocol. This signature confirms my consent to the smart contract =
+delegation required for non-interactive, privacy-preserving recurring =
+payments.
+
+=
+__AUTHORIZATION__0x0000000000000000000000000000000000000000000000000000000=
+000aa36a7000000000000000000000000935f5e6bce5b02b94d12b06c83083881922ca6d50=
+00000000000000000000000000000000000000000000000000000000000000087e3d0de173=
+194183a7ac7393a6b331c1de84662dc86cef9380dff11b43385db144d769b1b0cbb410de3e=
+f2804e3ecc52341f3b758f7f72d670c4d0545d5ec920000000000000000000000000000000=
+00000000000000000000000000000001c00000000000000000000000000000000000000000=
+00000000000000000000001__AUTHORIZATION__
+=
+__SALT__0xeffb808d753cab648a810be7767e53bd068af1e4794820eb1fc24b7a72035cd5=
+__SALT__
+
+By submitting this email, I confirm that I understand:
+- My email identity has been verified off-chain using Vlayer ZK-proofs.
+- The linked EOA is generated and controlled specifically for =
+subscription payments.
+- The EOA has been delegated under EIP-7702 to allow non-interactive =
+streaming of funds.
+- The service provider is authorized to periodically pull subscription =
+fees according to the agreed-upon schedule.
+
+This process ensures a secure, private, and transparent subscription =
+payment experience.=

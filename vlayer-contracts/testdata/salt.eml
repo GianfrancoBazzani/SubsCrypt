@@ -1,0 +1,144 @@
+Delivered-To: gordi2015ferrai@gmail.com
+Received: by 2002:a17:522:3792:b0:603:3cbd:9c67 with SMTP id u18csp1927711pvi;
+        Sat, 31 May 2025 16:04:35 -0700 (PDT)
+X-Received: by 2002:a05:6402:1e96:b0:601:9afe:8da9 with SMTP id 4fb4d7f45d1cf-6056f80c093mr6507936a12.11.1748732675505;
+        Sat, 31 May 2025 16:04:35 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1748732675; cv=none;
+        d=google.com; s=arc-20240605;
+        b=SP58rnEIBqYMa3Vd/Gz19h/xkndS89tq3THX3msDvyO7X81QbUmEKO4fbXzB8VQDDY
+         ZBdiy2S8NSHcKDIg2TStWspG3iUWF2+xbPX0R9VUM1sSqBfjfx3gVa2PWfaMuMYRCPVK
+         3g4yCCM4HhcenqMOlYtg/MZCI+AFoAFG5QucHOzAqRLUxoysacfwYSAkCD0HBsjLZEKK
+         sOlQIh184/Puoh73+xB2TJh5HsUNDIQPItTr5kCOtRI1IXFTO2z+lx3Aoii785XqNARA
+         /eEIJ7DAHYZLTGmDEuFnJceoArOoJl6+EbIoUMC0FDvsgGHdBjRi/jbgzYYszZFaE9aL
+         +nLQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=vpgBA7lFs6bROnocVICVM2sNqmIp8Fnh7P9+PnrYK8o=;
+        fh=XMsS1Kxpc/gMb26S4p8c93zrmMrLDmV4Pg4fJD+4Q4s=;
+        b=SXompGUO0q3NU1bRBybQ/aJuz991um++4pMGxHKZUbRqMhgE3abud56mV0shSxnXPp
+         yNhxcXthHIeiTT8zoo+mTclSvwa76zfxf3pO6LSOO+Y7Z1Wf5JxIZaHKIepAYDAjYv+p
+         qP/IkofzkCnDCbhNeGiWZZneisOrI9LEyZSmPgme16AFfpfCRNkYpKsxxBNOm8CLHYiG
+         A3MdZDp3xgUmQiNPivWV5a3fkUclWznI7AkGm7O2U7CqSUYid75Tsi/XXVFT9xFww98u
+         SoFHObAbm1BhJh2XsthcoDGtFxKG0sMBZzXI8NsYB71mk0Sa6Dpaj4+fpEW+it3wLkgr
+         w7vA==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=OFr5v8xF;
+       spf=pass (google.com: domain of ferrabled@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=ferrabled@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@gmail.com
+Return-Path: <ferrabled@gmail.com>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])
+        by mx.google.com with SMTPS id 4fb4d7f45d1cf-6051a3323basor3908002a12.3.2025.05.31.16.04.35
+        for <gordi2015ferrai@gmail.com>
+        (Google Transport Security);
+        Sat, 31 May 2025 16:04:35 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ferrabled@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=OFr5v8xF;
+       spf=pass (google.com: domain of ferrabled@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=ferrabled@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@gmail.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748732675; x=1749337475; dara=google.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=vpgBA7lFs6bROnocVICVM2sNqmIp8Fnh7P9+PnrYK8o=;
+        b=OFr5v8xFZdsI3QC73W5ibFRaGqMczi1PMmDfO3CXC8T5yWz1SDlm/7SXp93X2becdK
+         h9tQgwB5aPMiRaA8BzSwcRb6KNF3e40m0KQgZQaqcZEZwoiTF3cNBtPowZiWxzFYXCbg
+         y+wt73vNiriwdE7OWoOW78YbS+HgRMrj2Q2Wi4+eRA6dM+5B41l+Pjd/jxz723HBc8m8
+         /xhyLrnJOHjEyuMaRqbpUl/PAwcbwzmYisp/fRdJND4ZSsyPFy9QZpptleox5hF/et0Q
+         Ov8zzg5M6LfQp6RhYjgA1fu6hkFi4+SH9Tprs6OX3iMsFJ4y1xQp64iFUU03g3xX+SgD
+         Bbug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748732675; x=1749337475;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=vpgBA7lFs6bROnocVICVM2sNqmIp8Fnh7P9+PnrYK8o=;
+        b=q30vETs0Nk52hxui8W/5S26iRL/g7zAsdeq4T8zqdg6rRSFE4kMhZd+vVf5gWtBwl8
+         FTAgIezWXozsMZMVYs52QJ8LZ5Jr5FyBgREtE8FSkzW3fhTc5skaceiJkmRlUCTCfoUL
+         Spkt0yAt9nmDHW57LOvjpO7ba7FuaJqdr1H6fZlat+I7eVrOZh8LlTyiXEP4hg+pHE8I
+         8Kd2v/RhtVOS/nLEnd8YYLPfeIt0w1jiyCQDp2sSRSpa0msM6IJeFldXNcfVRVLl5vLp
+         aQKSi/gFLcKw+IG7/fRhPBVuNDt5vrtGveaqWQUPcOGgvoOuMCWjzPQOAI7uMSM5T8wP
+         tiKQ==
+X-Gm-Message-State: AOJu0YwfMRGEZJQe/+Q62BfAnaCzJnhc6k6AqLPLjCEFpsZ8SqkVw5sy
+	T5Wlm0rfT1+qaXmW6HAHzGz8Qv/eu5cx4BjpDIIJnvOINGfJcXyYiIAObfOBIG5GqhONc3m0wg1
+	APHWZoTxGk93Bn0vQ1LgagwK7Jc+E0gIGGqDghIs=
+X-Gm-Gg: ASbGncuSgY890VzL43tG4Oc7xlYzWYqe9OaGwyOvQhUpRSF6sgSZT2GLGFIq7Fn774S
+	6kN3BuOmDB7+uQBrCrxRiy1xPE30rPJc20DszZDXvY2J+bJL/BjKrby4rzfDicYcm/eIMxRkUfG
+	VfHllyRIDnLfyR7FeT3+JLoX8QRpixnMWCByc=
+X-Google-Smtp-Source: AGHT+IFbqYex7Hs9iyPP79Udlo/y00TlTKQDllxvm0Jk7+UGrPIkIamwOslkkd12ijdpK7JmuUnrGTh9bt2oh0mFsNw=
+X-Received: by 2002:a05:6512:b1c:b0:553:3201:8d23 with SMTP id
+ 2adb3069b0e04-55335b11511mr4086430e87.9.1748732663798; Sat, 31 May 2025
+ 16:04:23 -0700 (PDT)
+MIME-Version: 1.0
+From: Fernando Rabasco <ferrabled@gmail.com>
+Date: Sun, 1 Jun 2025 01:04:12 +0200
+X-Gm-Features: AX0GCFu7zAQI2YBq-FJvkFD9HvBo4XgIa9WmPAfV2Vzlj1VlYXOKsR6cE0ZwT-Q
+Message-ID: <CAMZcmqKHHOt8e01Ws41b9fgR53FHCNN0AW_bW780_Rag_X7uVQ@mail.gmail.com>
+Subject: =?UTF-8?Q?Authorization_for_Subscription_Payment_=E2=80=93_SubsCrypt?=
+	=?UTF-8?Q?_=2D_serviceID=3A_1234567890?=
+To: gordi2015ferrai@gmail.com
+Content-Type: multipart/alternative; boundary="0000000000003ba2a80636768d89"
+
+--0000000000003ba2a80636768d89
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Hello,
+
+I authorize the subscription payment for the service I am subscribing to
+via SubsCrypt.
+
+The authorization tuple below represents my signed delegation, which binds
+this email to the designated "payment" EOA under the SubsCrypt protocol.
+This signature confirms my consent to the smart contract delegation
+required for non-interactive, privacy-preserving recurring payments.
+
+__AUTHORIZATION__0x00000000000000000000000000000000000000000000000000000000=
+00aa36a7000000000000000000000000aed14a38a5596284a05419d6610df29815e5401e000=
+0000000000000000000000000000000000000000000000000000000000000f9738ce97e5d16=
+d03b6c465a35360591703aed4773dca77f8cb0f3f580b60d0b0f7d291b78d1f6f5b8ea2b9fb=
+02b791695f70f0844926e2cb0edd525d41f9f01000000000000000000000000000000000000=
+0000000000000000000000000000__AUTHORIZATION__
+__SALT__0xc5df1f529084fde500d60f8def2b9cce4f6e99d46e7cea447e572bc77ff69ada_=
+_SALT__
+
+By submitting this email, I confirm that I understand:
+- My email identity has been verified off-chain using Vlayer ZK-proofs.
+- The linked EOA is generated and controlled specifically for subscription
+payments.
+- The EOA has been delegated under EIP-7702 to allow non-interactive
+streaming of funds.
+- The service provider is authorized to periodically pull subscription fees
+according to the agreed-upon schedule.
+
+This process ensures a secure, private, and transparent subscription
+payment experience.
+
+--0000000000003ba2a80636768d89
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto">Hello,<br><br>I authorize the subscription payment for th=
+e service I am subscribing to via SubsCrypt.<br><br>The authorization tuple=
+ below represents my signed delegation, which binds this email to the desig=
+nated &quot;payment&quot; EOA under the SubsCrypt protocol. This signature =
+confirms my consent to the smart contract delegation required for non-inter=
+active, privacy-preserving recurring payments.<br><br>__AUTHORIZATION__0x00=
+00000000000000000000000000000000000000000000000000000000aa36a70000000000000=
+00000000000aed14a38a5596284a05419d6610df29815e5401e000000000000000000000000=
+0000000000000000000000000000000000000000f9738ce97e5d16d03b6c465a35360591703=
+aed4773dca77f8cb0f3f580b60d0b0f7d291b78d1f6f5b8ea2b9fb02b791695f70f0844926e=
+2cb0edd525d41f9f01000000000000000000000000000000000000000000000000000000000=
+0000000__AUTHORIZATION__<br>__SALT__0xc5df1f529084fde500d60f8def2b9cce4f6e9=
+9d46e7cea447e572bc77ff69ada__SALT__<br><br>By submitting this email, I conf=
+irm that I understand:<br>- My email identity has been verified off-chain u=
+sing Vlayer ZK-proofs.<br>- The linked EOA is generated and controlled spec=
+ifically for subscription payments.<br>- The EOA has been delegated under E=
+IP-7702 to allow non-interactive streaming of funds.<br>- The service provi=
+der is authorized to periodically pull subscription fees according to the a=
+greed-upon schedule.<br><br>This process ensures a secure, private, and tra=
+nsparent subscription payment experience.=C2=A0</div>
+
+--0000000000003ba2a80636768d89--
