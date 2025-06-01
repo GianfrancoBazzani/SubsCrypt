@@ -22,14 +22,6 @@ import { toast } from "sonner"
 import { sepolia } from "viem/chains"
 import { useServiceData } from "@/hooks/use-service-data"
 
-interface ServiceOffer {
-    serviceProvider: string
-    paymentRecipient: string
-    paymentAsset: string
-    assetChainId: bigint
-    servicePrice: bigint
-    paymentInterval: bigint
-}
 
 export function ManageServices() {
     const { address } = useAccount()
@@ -293,7 +285,7 @@ export function ManageServices() {
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            onClick={() => window.open(`https://etherscan.io/address/${service.serviceProvider}`, "_blank")}
+                                            onClick={() => window.open(`https://eth-sepolia.blockscout.com/address/${service.serviceProvider}`, "_blank")}
                                         >
                                             <ExternalLink className="h-4 w-4" />
                                         </Button>

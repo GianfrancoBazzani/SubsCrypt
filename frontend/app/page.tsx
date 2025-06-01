@@ -4,13 +4,9 @@ import { Shield, Zap, Lock, Globe, Mail, CreditCard, ArrowRight, CheckCircle, Us
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useState } from "react"
-import { SubscriptionModal } from "@/components/ui/subsription-modal"
 import Link from "next/link"
 
 export default function HomePage() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

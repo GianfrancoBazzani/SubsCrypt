@@ -2,8 +2,7 @@
 
 import { useState } from "react"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Settings, DollarSign, UserCheck, AlertCircle } from "lucide-react"
+import { Settings } from "lucide-react"
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
 import { SubscriptionsList } from "@/components/admin/subscriptions-list"
 import { ManageServices } from "@/components/admin/manage-services"
