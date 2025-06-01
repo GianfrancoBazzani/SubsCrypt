@@ -32,8 +32,8 @@ The service provider can pull the funds whenever he wants since we implement a s
 ### Auto-executable Payments with fee-incentivized triggers
 In order to incentivize the execution of the payments semi-automatically, a fee auction is implemented to incentivize anyone to pay for the gas of payment triggering transactions, obtaining a fee percentage in exchange.
 
-### Multi-Currency Payments via Atomic 1 Inch Unoswap
-We leverage atomic 1 Inch Unoswap swaps so users can pay in their preferred currency. The swap executes securely in a single transaction, converting the funds seamlessly.
+### Multi-Currency Payments via Atomic 1 Inch Unoswap Swaps
+We leverage  1 Inch Unoswap swaps so users can pay in their preferred currency and the services providers got payed with their specified currency. The swap executes atomically in a same pulling transaction, converting the funds.
 
 ## App Flow
 
