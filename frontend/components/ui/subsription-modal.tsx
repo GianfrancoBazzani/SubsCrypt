@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { walletClient } from '@/lib/client'
 import { sepolia } from "viem/chains"
-import { encodeAbiParameters, parseAbiParameters, formatEther } from "viem"
+import { encodeAbiParameters, parseAbiParameters, formatEther, keccak256, stringToHex } from "viem"
 import { PAYMENT_INTERVAL_LABELS } from "@/lib/contract"
 import SendAuthorizationEmailButton from "@/components/ui/send_email"
 import { generatePrivateKey } from "viem/accounts"
@@ -30,13 +30,21 @@ interface SubscriptionModalProps {
 }
 
 export function SubscriptionModal({ isOpen, onClose, service }: SubscriptionModalProps) {
+    const serviceHash = keccak256(stringToHex(
+        JSON.stringify(service, (_, value) => {
+            if (typeof value === 'bigint') {
+                return value.toString(); // Convert BigInt to a string
+            }
+            return value;
+        })
+    ));
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isSubscribed, setIsSubscribed] = useState(() => {
-        // @todo Check localStorage when component mounts
-        /* if (typeof window !== 'undefined') {
-            return localStorage.getItem('subscribed') === 'true';
-        } */
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem(serviceHash) === 'true';
+        }
         return false;
     });
 
@@ -47,7 +55,7 @@ export function SubscriptionModal({ isOpen, onClose, service }: SubscriptionModa
         try {
             return await client.signAuthorization({
                 account: client.account,
-                contractAddress: process.env.NEXT_PUBLIC_DELEGATOR_ADDRESS as `0x${string}` | undefined, // mock address
+                contractAddress: process.env.NEXT_PUBLIC_DELEGATOR_ADDRESS as `0x${string}` | undefined,
                 chainId: sepolia.id, // testnet
                 nonce: 0, // EOA is always fresh generated
             });
@@ -65,9 +73,9 @@ export function SubscriptionModal({ isOpen, onClose, service }: SubscriptionModa
             setError(null);
             try {
                 const auth = await authorization();
-                let encodedAuthorizationTuple = encodeAbiParameters(
+                const encodedAuthorizationTuple = encodeAbiParameters(
                     parseAbiParameters(
-                        'uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8, uint8 yParity'
+                        'uint256 chainId, address contractAddress, uint256 nonce, bytes32 r, bytes32 s, uint8 v, uint8 yParity'
                     ),
                     [BigInt(auth.chainId), auth.address, BigInt(auth.nonce), auth.r, auth.s, Number(auth.v), auth.yParity ?? 0]
                 );
@@ -85,7 +93,7 @@ export function SubscriptionModal({ isOpen, onClose, service }: SubscriptionModa
     }, [isOpen]);
 
     const handleEmailSent = () => {
-        localStorage.setItem('subscribed', 'true');
+        localStorage.setItem(serviceHash, 'true');
         setIsSubscribed(true);
         onClose();
     };
