@@ -2,8 +2,7 @@
 pragma solidity 0.8.28;
 
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
-import "hardhat/console.sol";
+import {IAggregationRouterV6} from "./interfaces/IAggregationRouterV6.sol";
 
 contract SubsCryptSmartAccountDelegate {
     // Events
@@ -24,6 +23,9 @@ contract SubsCryptSmartAccountDelegate {
     uint256 public servicePrice; // in wei/seconds
     uint256 public lastPullTimestamp;
 
+    IAggregationRouterV6 constant AGGREGATION_ROUTER_V6 =
+        IAggregationRouterV6(0x111111125421cA6dc452d289314280a0f8842A65);
+
     constructor() {
         marketplace = msg.sender;
     }
@@ -42,7 +44,9 @@ contract SubsCryptSmartAccountDelegate {
     function pullFunds(
         address originAssetAddress,
         address destinationAssetAddress,
-        uint256 destinationChainId
+        uint256 destinationChainId,
+        uint256 swapAmount,
+        uint256[] calldata pools
     ) external {
         require(msg.sender == marketplace, OnlyMarketplaceCanPullFunds());
         require(
@@ -50,22 +54,38 @@ contract SubsCryptSmartAccountDelegate {
             PaymentIntervalNotReached()
         );
 
-        // TODO Implement swap
-        require(
-            originAssetAddress == destinationAssetAddress,
-            "Swap not implemented"
-        );
         require(
             block.chainid == destinationChainId,
             "Cross-chain not implemented"
         );
 
-        // First iteration
+        // Compute expected amount
         uint256 _amount;
         if (lastPullTimestamp == 0) {
             _amount = servicePrice * paymentInterval;
         } else {
             _amount = servicePrice * (block.timestamp - lastPullTimestamp);
+        }
+
+        // Use 1Inch unoswap to swap assets if the addresses does not match
+        if (originAssetAddress != destinationAssetAddress) {
+            if (
+                IERC20(originAssetAddress).allowance(
+                    address(this),
+                    address(AGGREGATION_ROUTER_V6)
+                ) == 0
+            )
+                IERC20(originAssetAddress).approve(
+                    address(AGGREGATION_ROUTER_V6),
+                    2 ** 256 - 1
+                );
+
+            AGGREGATION_ROUTER_V6.unoswap(
+                originAssetAddress,
+                swapAmount,
+                _amount,
+                pools
+            );
         }
 
         lastPullTimestamp = block.timestamp;

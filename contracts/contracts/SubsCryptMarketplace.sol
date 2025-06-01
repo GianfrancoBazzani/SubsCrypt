@@ -5,8 +5,6 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {SubsCryptSmartAccountDelegate} from "./SubsCryptSmartAccountDelegate.sol";
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "hardhat/console.sol";
-
 contract SubsCryptMarketplace is Ownable {
     // Types
     struct ServiceOffer {
@@ -22,6 +20,8 @@ contract SubsCryptMarketplace is Ownable {
         address account;
         address assetAddress;
         address feeReceiverAddress;
+        uint256 swapAmount;
+        uint256[] pools; // Unused if 1inch swaps are required
     }
 
     // Events
@@ -175,7 +175,9 @@ contract SubsCryptMarketplace is Ownable {
         SubsCryptSmartAccountDelegate(payable(params.account)).pullFunds(
             params.assetAddress,
             serviceOffer.paymentAsset,
-            serviceOffer.assetChainId
+            serviceOffer.assetChainId,
+            params.swapAmount,
+            params.pools
         );
 
         uint256 balanceAfter;
