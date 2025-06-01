@@ -3,6 +3,8 @@ pragma solidity 0.8.28;
 
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+import "hardhat/console.sol";
+
 contract SubsCryptSmartAccountDelegate {
     // Events
     event FundsPulled(uint256 indexed blockTimestamp, uint256 amount);
@@ -49,17 +51,21 @@ contract SubsCryptSmartAccountDelegate {
         );
 
         // TODO Implement swap
-        require(originAssetAddress == destinationAssetAddress, "Swap not implemented");
-        require(block.chainid == destinationChainId, "Cross-chain not implemented");
-
+        require(
+            originAssetAddress == destinationAssetAddress,
+            "Swap not implemented"
+        );
+        require(
+            block.chainid == destinationChainId,
+            "Cross-chain not implemented"
+        );
 
         // First iteration
         uint256 _amount;
         if (lastPullTimestamp == 0) {
             _amount = servicePrice * paymentInterval;
         } else {
-            _amount = servicePrice *
-                (block.timestamp - lastPullTimestamp);
+            _amount = servicePrice * (block.timestamp - lastPullTimestamp);
         }
 
         lastPullTimestamp = block.timestamp;
@@ -68,7 +74,11 @@ contract SubsCryptSmartAccountDelegate {
             require(address(this).balance >= _amount, InsufficientBalance());
             payable(msg.sender).transfer(_amount);
         } else {
-            SafeERC20.safeTransfer(IERC20(destinationAssetAddress), msg.sender, _amount);
+            SafeERC20.safeTransfer(
+                IERC20(destinationAssetAddress),
+                msg.sender,
+                _amount
+            );
         }
 
         // Emit event funds pulled

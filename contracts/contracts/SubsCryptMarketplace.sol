@@ -5,6 +5,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {SubsCryptSmartAccountDelegate} from "./SubsCryptSmartAccountDelegate.sol";
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+import "hardhat/console.sol";
+
 contract SubsCryptMarketplace is Ownable {
     // Types
     struct ServiceOffer {
@@ -42,6 +44,7 @@ contract SubsCryptMarketplace is Ownable {
     error ServiceFeeMustBeGreaterThanZero();
     error ServiceNotRegistered();
     error AccountNotEIP7702Delegated();
+    error ServiceRegisteredToThisAccount();
 
     address constant NATIVE_ASSET = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address public immutable verifier;
@@ -86,8 +89,8 @@ contract SubsCryptMarketplace is Ownable {
             ServiceFeeMustBeGreaterThanZero()
         );
 
-        serviceOffers[serviceCount] = serviceOffer;
         serviceCount++;
+        serviceOffers[serviceCount] = serviceOffer;
 
         emit ServiceRegistered(
             serviceOffer.paymentRecipient,
@@ -134,6 +137,7 @@ contract SubsCryptMarketplace is Ownable {
             serviceOffer.paymentInterval,
             serviceOffer.servicePrice
         );
+        accountToServices[account] = Id;
 
         emit AccountInitialized(Id, account);
     }
@@ -145,7 +149,7 @@ contract SubsCryptMarketplace is Ownable {
         for (uint256 i = 0; i < paramsArray.length; i++) {
             PullFundsParams memory params = paramsArray[i];
             uint256 serviceId = accountToServices[params.account];
-            require(serviceId != 0, "Service not registered for this account");
+            require(serviceId != 0, ServiceRegisteredToThisAccount());
             _executePayment(params, serviceId);
         }
     }
@@ -161,10 +165,10 @@ contract SubsCryptMarketplace is Ownable {
 
         uint256 balanceBefore;
         if (serviceOffer.paymentAsset == NATIVE_ASSET) {
-            balanceBefore = address(params.account).balance;
+            balanceBefore = address(this).balance;
         } else {
-            balanceBefore = IERC20(params.assetAddress).balanceOf(
-                params.account
+            balanceBefore = IERC20(serviceOffer.paymentAsset).balanceOf(
+                address(this)
             );
         }
 
@@ -176,10 +180,10 @@ contract SubsCryptMarketplace is Ownable {
 
         uint256 balanceAfter;
         if (serviceOffer.paymentAsset == NATIVE_ASSET) {
-            balanceAfter = address(params.account).balance;
+            balanceAfter = address(this).balance;
         } else {
-            balanceAfter = IERC20(params.assetAddress).balanceOf(
-                params.account
+            balanceAfter = IERC20(serviceOffer.paymentAsset).balanceOf(
+                address(this)
             );
         }
 
@@ -216,4 +220,6 @@ contract SubsCryptMarketplace is Ownable {
     ) external onlyOwner {
         executionBountyPercentage = newPercentage;
     }
+
+    receive() external payable {}
 }

@@ -28,7 +28,8 @@ import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
 import { sepolia } from "viem/chains";
 
 const DEFAULT_EXECUTION_BOUNTY_PERCENTAGE = 5_000;
-const DUMMY_HASH = "0x1000000000000000000000000000000000000000000000000000000000000001";
+const DUMMY_HASH =
+  "0x1000000000000000000000000000000000000000000000000000000000000001";
 
 describe("SubsCrypt", function () {
   async function deploySubsCrypt() {
@@ -38,6 +39,7 @@ describe("SubsCrypt", function () {
       paymentRecipient,
       paymentAsset,
       verifier,
+      bot,
       user,
     ] = await hre.viem.getWalletClients();
     const subsCryptMarketplace = await hre.viem.deployContract(
@@ -59,6 +61,7 @@ describe("SubsCrypt", function () {
       paymentRecipient,
       paymentAsset,
       verifier,
+      bot,
       user,
     };
   }
@@ -120,8 +123,9 @@ describe("SubsCrypt", function () {
 
     const serviceCount = await subsCryptMarketplace.read.serviceCount();
 
-    expect(await subsCryptMarketplace.read.isServiceAvailable([serviceCount]))
-      .to.be.false;
+    expect(
+      await subsCryptMarketplace.read.isServiceAvailable([serviceCount + 1n])
+    ).to.be.false;
 
     await subsCryptMarketplace.write.registerService(
       [
@@ -139,20 +143,22 @@ describe("SubsCrypt", function () {
       }
     );
 
-    expect(await subsCryptMarketplace.read.isServiceAvailable([serviceCount]))
-      .to.be.true;
+    expect(
+      await subsCryptMarketplace.read.isServiceAvailable([serviceCount + 1n])
+    ).to.be.true;
 
     await expect(
-      subsCryptMarketplace.write.unregisterService([serviceCount], {
+      subsCryptMarketplace.write.unregisterService([serviceCount + 1n], {
         account: user.account.address,
       })
     ).to.be.rejectedWith("UnauthorizedServiceProvider()");
 
-    await subsCryptMarketplace.write.unregisterService([serviceCount], {
+    await subsCryptMarketplace.write.unregisterService([serviceCount + 1n], {
       account: serviceProvider.account.address,
     });
-    expect(await subsCryptMarketplace.read.isServiceAvailable([serviceCount]))
-      .to.be.false;
+    expect(
+      await subsCryptMarketplace.read.isServiceAvailable([serviceCount + 1n])
+    ).to.be.false;
   });
 
   it("Only verifier can initialize accounts", async function () {
@@ -231,7 +237,7 @@ describe("SubsCrypt", function () {
 
     await expect(
       subsCryptMarketplace.write.initializeAccount(
-        [0n, burnerEOA.address, DUMMY_HASH],
+        [1n, burnerEOA.address, DUMMY_HASH],
         {
           account: verifier.account.address,
         }
@@ -251,7 +257,7 @@ describe("SubsCrypt", function () {
       .undefined;
 
     await subsCryptMarketplace.write.initializeAccount(
-      [0n, burnerEOA.address, DUMMY_HASH],
+      [1n, burnerEOA.address, DUMMY_HASH],
       {
         account: verifier.account.address,
       }
@@ -269,7 +275,7 @@ describe("SubsCrypt", function () {
     expect(await burnerEOAContract.read.lastPullTimestamp()).to.be.equal(0n);
   });
 
-  it("Payments can be triggered", async function () {
+  it("Payments can be triggered ETH", async function () {
     const {
       subsCryptMarketplace,
       serviceProvider,
@@ -277,6 +283,7 @@ describe("SubsCrypt", function () {
       paymentAsset,
       verifier,
       publicClient,
+      bot,
       user,
     } = await loadFixture(deploySubsCrypt);
 
@@ -285,10 +292,10 @@ describe("SubsCrypt", function () {
         {
           serviceProvider: serviceProvider.account.address,
           paymentRecipient: paymentRecipient.account.address,
-          paymentAsset: paymentAsset.account.address,
-          assetChainId: 1n,
-          servicePrice: 1000n,
-          paymentInterval: 3600n,
+          paymentAsset: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+          assetChainId: 31337n,
+          servicePrice: 10n,
+          paymentInterval: 1000n,
         },
       ],
       {
@@ -317,16 +324,105 @@ describe("SubsCrypt", function () {
     });
 
     await subsCryptMarketplace.write.initializeAccount(
-      [0n, burnerEOA.address, DUMMY_HASH],
+      [1n, burnerEOA.address, DUMMY_HASH],
       {
         account: verifier.account.address,
       }
     );
-    
+
+    await setBalance(burnerEOA.address, parseEther("100"));
+    const botBalanceBefore = await publicClient.getBalance({
+      address: bot.account.address,
+    });
+    const recipientBalanceBefore = await publicClient.getBalance({
+      address: paymentRecipient.account.address,
+    });
+
+    const tx = await subsCryptMarketplace.write.batchExecutePayments(
+      [
+        [
+          {
+            account: burnerEOA.address,
+            assetAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            feeReceiverAddress: bot.account.address,
+          },
+        ],
+      ],
+      {
+        account: bot.account.address,
+      }
+    );
+    const receipt = await publicClient.waitForTransactionReceipt({
+      hash: tx,
+    });
+
+    expect(
+      await publicClient.getBalance({
+        address: burnerEOA.address,
+      })
+    ).to.be.equal(parseEther("100") - 10_000n);
+
+    expect(
+      await publicClient.getBalance({
+        address: bot.account.address,
+      })
+    ).to.be.equal(
+      botBalanceBefore + 500n - receipt.gasUsed * receipt.effectiveGasPrice
+    );
+
+    expect(
+      await publicClient.getBalance({
+        address: paymentRecipient.account.address,
+      })
+    ).to.be.equal(recipientBalanceBefore + 9_500n);
+
+    time.increase(999n);
+
+    await expect(
+      subsCryptMarketplace.write.batchExecutePayments(
+        [
+          [
+            {
+              account: burnerEOA.address,
+              assetAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+              feeReceiverAddress: bot.account.address,
+            },
+          ],
+        ],
+        {
+          account: bot.account.address,
+        }
+      )
+    ).to.be.rejectedWith("0xd1d32b8b");
+
+    time.increase(1000n);
+
+    const burnerEOABalanceBefore1 = await publicClient.getBalance({
+      address: burnerEOA.address,
+    });
+    const botBalanceBefore1 = await publicClient.getBalance({
+      address: bot.account.address,
+    });
+    const recipientBalanceBefore1 = await publicClient.getBalance({
+      address: paymentRecipient.account.address,
+    });
+
+    await subsCryptMarketplace.write.batchExecutePayments(
+      [
+        [
+          {
+            account: burnerEOA.address,
+            assetAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            feeReceiverAddress: bot.account.address,
+          },
+        ],
+      ],
+      {
+        account: bot.account.address,
+      }
+    );
 
   });
-
-
 
   describe("DUMMY", function () {
     it("DUMMY", async function () {
